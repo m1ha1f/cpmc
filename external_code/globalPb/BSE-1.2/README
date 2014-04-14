@@ -1,0 +1,88 @@
+Berkeley Segmentation Engine (BSE) v 1.1  
+
+Charless Fowlkes <fowlkes@cs.berkeley.edu>
+Fri May  6 14:35:16 PDT 2005
+
+This release contains code to compute pairwise affinities for segmenting natural
+images as described in:
+
+ C. Fowlkes, D. Martin, J. Malik. "Learning Affinity Functions for Image
+ Segmentation: Combining Patch-based and Gradient-based Approaches", CVPR,
+ Madison, WI, (June 2003).
+
+and
+
+  D. Martin, C. Fowlkes, J. Malik. "Learning to Detect Natural Image Boundaries
+  Using Local Brightness, Color and Texture Cues", TPAMI 26 (5) p.530-549
+
+there is also code to feed the computed affinities to an eigensolver (TRLan)
+and cluster the resulting eigenvectors using k-means as described in
+
+  C. Fowlkes, J. Malik. "How Much Does Globalization Help Segmentation?",
+  Technical Report CSD-04-1340, Division of Computer Science, University of
+  California, Berkeley, (July 2004). 
+
+
+A few notes, more documentation to follow in some upcomming release.
+
+
+
+COMPILATION:
+
+  - in order to build TRLan you will need a fortran90 compiler.  there is now
+    one available in gcc4 called gfortran.  see:
+
+      http://gcc.gnu.org/fortran/
+
+    i am currently using the fedora core 3 package gcc4-gfortran which seems 
+    correct.  Makefile.gcc should work out of the box with fc3 + the gcc4-gfortran
+    preview.  just do "ln -s Makefile.gcc Makefile" and "make".  with a different
+    gcc4 layout, you will probably have to find down where the gfortran libraries
+    end up.
+
+  - an alternative to gcc/gfortran is the intel toolchain.  this is currently
+    freely available for academic/opensource use.  see
+
+        intel compilers -- http://www.intel.com/software/products/compilers/linux/
+
+  - make sure that you get a well optimized blas/lapack library.  the default
+    with some linux distros are quite slow.  one possibility is to download
+    an evaluation version of the intel math kernel library (MKL)
+
+        math kernel lib  -- http://developer.intel.com/software/products/mkl/
+         
+  - in my experience with the included makefiles
+
+     intel+mkl < intel+lapack < gcc+lapack
+
+    but i may be far from the best optimization settings.
+
+
+  - by default, the Makefile builds a couple different "applications".  running
+    any of them without options will give a (long) list of available configuration
+    parameters.  These have all been set to values which perform optimally with
+    respect to our training data so if you are just interested in segmentations or 
+    Pb for natural images, you shouldn't need to change many of these.
+
+USAGE:
+
+  - if you are only interested in boundary detection, then you will want apps/pixelfeatures.cc
+    the most basic commandline would be:
+
+      ./pixelfeatures -image myimage.jpg -pbfile myimage.pb
+
+  - if you are only interested in segmentation into superpixels, then you will
+    want apps/segment.cc.  segment has commandline options to save and load
+    in several intermediate and diagnostic results (such as Pb) so if you are
+    repeatedly running on the same image, you can shortcut some of the
+    computations.  the most basic command line might be something like:
+
+      ./segment -image myimage.jpg -segfile myimage.seg -numsuperpixels 15
+
+  - program outputs are binary files containing arrays of floats or ints (for
+    Pb and segmentations respectively).  there are example routines in the
+    "matlab" directory to read these files....see also util/array.hh
+
+  - the commandline switch -Message::debuglevel controls the verbosity of output to stderr
+
+

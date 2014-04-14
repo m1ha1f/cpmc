@@ -1,0 +1,321 @@
+CSA uses a cost-scaling push-relabel algorithm to solve assignment
+problems. Two basic versions of the source code (with considerable
+overlap) are provided: a precise-costs version and a rounded-costs
+version. The rounded-costs version was developed to determine whether
+working with integer units of epsilon within a scaling iteration (and
+hence using only integer arithmetic except to compute the rounded
+costs prior to each iteration) would provide a performance gain. On
+our machine, it did not.
+
+Although it would be a simple matter to fix this (and we might
+make a later version with this change), THE CODE ASSUMES EXISTENCE OF
+A PERFECT MATCHING in the input assignment problem. No checks are made
+for this condition. If this condition does not hold, the code will run
+forever, unless there are fewer nodes on the left-hand side than on
+the right (in which case the computed assignment is liable not to be
+optimal).
+
+All the code reads the assignment problem in DIMACS format from
+standard input and writes the cost of the optimum assignment along
+with performance data on the standard output.
+
+Because the code is distributed in the form of a .tar file and some
+versions of tar may not know about symbolic links, THE FIRST THING YOU
+MUST DO after unpacking the .tar file is check to see whether symbolic
+links appear in the prec_costs and round_costs directories. If there
+are no symbolic links, type "make links" in both directories. This
+action will set up symbolic links to the source code that is in common
+between the precise-costs and rounded-costs versions of the program.
+Users of systems that don't use symbolic links will have to resort to
+something else; a quick-and-dirty fix would be to modify the Makefiles
+so they copy instead of making links. Yet another reasonable
+alternative is to set the Makefiles up to build hard links (just
+remove the "-s" flag from all the "ln" command lines).
+
+The Makefiles are set up to compile many versions of the code, each
+with some set of options turned on. The options and the compile-time
+macros that activate them are described below:
+
+PREC_COSTS		If PREC_COSTS is defined, edge costs are stored
+ROUND_COSTS		precisely as doubles throughout. If
+			ROUND_COSTS is defined (as it is guaranteed to
+			be if PREC_COSTS isn't), edge costs are stored
+			in rounded units of epsilon at each iteration
+			so most of the arithmetic done at each stage
+			is integer. We deemed the differences between
+			these two versions of the code great enough to
+			warrant separate source files for some of the
+			routines. In particular, csa_types.h, debug.c,
+			p_refine.c, p_update.c, refine.c, and
+			update_epsilon.c have different source
+			versions corresponding to these compile-time
+			macros. The best performance we obtained was
+			using PREC_COSTS.
+
+MIN_COST		If MIN_COST is defined, the program computes
+			the min-cost complete assignment. If MIN_COST
+			is undefined, the program computes the
+			maximum-cost complete assignment.
+
+SAVE_RESULT		If SAVE_RESULT is defined, the optimum
+			assignment computed by the program is saved in
+			the file "output.flow" prior to termination.
+			The assignment is saved one-line-per-arc,
+			according to the format
+			"f <lhs id> <rhs id> <cost>".
+
+QUEUE_ORDER		If QUEUE_ORDER is defined, active vertices are
+			processed in FIFO order. Otherwise, active
+			vertices are processed in stack order.
+			QUEUE_ORDER did not seem to improve
+			performance for us.
+
+EXPLICIT_LHS_PRICES	If EXPLICIT_LHS_PRICES is defined, a price
+			field is stored with each node on the
+			left-hand side in the PREC_COSTS case. The
+			only place where these prices are used to
+			govern the program's behavior in any way is in
+			the case where STRONG_PO is defined. Then, the
+			computation of the reduced cost for an arc
+			uses the stored price for the arc's left
+			endpoint rather than inferring an implicit
+			price for that node.
+
+	WARNING:	Because explicit lhs prices were added as an
+			afterthought, the following statements hold:
+			We do not know what effects this use of
+			explicit lhs prices has on performance of the
+			code with strong price-outs enabled.
+			The code for global price updates and price
+			refinement do not update prices for lhs nodes
+			under any circumstances. The effects of this
+			fact on performance are nil, except in the
+			STRONG_PO case, where the effects are unknown;
+			correctness is unaffected.
+			Explicit lhs prices are available only in the
+			PREC_COSTS case; I never bothered to implement
+			them in the ROUND_COSTS code, although there
+			is no especially good reason not to.
+
+USE_PRICE_OUT		USE_PRICE_OUT is relevant only in the
+			PREC_COSTS case because pricing out is always
+			used to avoid integer overflow in the
+			ROUND_COSTS case. If USE_PRICE_OUT is defined,
+			arcs are considered once per iteration for
+			pricing out. Those arcs with high enough
+			reduced cost (where "high enough" depends on
+			STRONG_PO as explained below) are moved to
+			separate regions of the data structure where
+			they no longer contribute to computation
+			costs.
+STRONG_PO		If STRONG_PO is NOT defined, arcs are priced
+			out according to the theoretical bound on the
+			reduced cost of an arc whose status may yet
+			change during the computation, i.e., if the
+			present assignment is epsilon-optimal, arcs
+			with reduced cost exceeding 2 * n * epsilon in
+			absolute value are fixed. If STRONG_PO IS
+			defined, speculative arc fixing is used, i.e.
+			the reduced cost limit for priced-in arcs can
+			be considerably lower. If the threshold is not
+			specified on the command line, a value of 2.0
+			* sqrt(n) * sqrt(sqrt(n)) is used. Note that
+			lowering this threshold incurs an additional
+			cost: since priced-out arcs are no longer
+			guaranteed by the theory to obey
+			epsilon-optimality, the program periodically
+			checks each one to ensure that it remains
+			well-behaved. Any arc that doesn't gets moved
+			back into the normal arc list, with possible
+			modification of its status to preserve
+			epsilon-optimality. For some classes of
+			problems, STRONG_PO helped performance
+			significantly. For others, it hurt.
+
+USE_SP_AUG_FORWARD	These two mutually exclusive macros cause the
+USE_SP_AUG_BACKWARD	following behavior: Each execution of
+			refine(), upon achieving the condition that
+			EXCESS_THRESH units of excess remain, invokes
+			an approximate-shortest-path augmentation
+			procedure to eliminate the remaining excess.
+			If USE_SP_AUG_FORWARD is defined, the search
+			for augmenting paths proceeds "forward" from
+			each excess, one at a time. If
+			USE_SP_AUG_BACKWARD is defined, the search for
+			augmenting paths proceeds "backwards" from all
+			deficits simultaneously. I found that the
+			performance of the forward search so far
+			outstripped the backward search's speed that
+			it wasn't worth modifying the backward search
+			to proceed from a single deficit at a time,
+			even though this would probably help its speed
+			considerably and is definitely the more
+			intelligent approach. Several other minor
+			style problems remain with sp_aug_backward.c
+			(the code corresponding to
+			USE_SP_AUG_BACKWARD), and the code is included
+			mainly as a curiosity. Even with its elegance
+			improved as much as I know how, it would not
+			perform at the level of sp_aug_forward.c
+			(which corresponds to USE_SP_AUG_FORWARD), so
+			I stopped improving it. Unfortunately for the
+			reader who's come this far, even forward
+			shortest path augmentation didn't help
+			performance on any problem class I tested.
+EXCESS_THRESH		Determines the amount of excess at which
+			refine() switches to approximate shortest-path
+			augmentation. A detestable hack in
+			sp_aug_backward.c requires that if
+			USE_SP_AUG_BACKWARD is defined, EXCESS_THRESH
+			be a constant.
+LOG_PATHS		Debugging option that switches on printing of
+			augmenting paths used by approximate
+			shortest-path augmentation.
+
+QUICK_MIN		Relevant only in the PREC_COSTS case, simply
+			because this feature is unimplemented for
+			rounded costs. There is no reason in principle
+			why implementation of this feature would be
+			difficult or ill-advised in the ROUND_COSTS
+			case. If QUICK_MIN is defined, attached to
+			each node is stored an array of pointers to
+			arcs (called the node's best-list) and a
+			lower bound (called the node's next-best
+			value) on the partial reduced cost of any arc
+			not stored in the best-list. During a
+			double-push operation, the best-list is
+			examined to determine whether at least two of
+			its members have partial reduced costs still
+			below the next-best value. If they do, these
+			two arcs are necessarily the minimum and
+			second-minimum reduced-cost arcs for this
+			node. If the best-list contains no such arcs,
+			the node's next-best value and best-list are
+			rebuilt. During a rebuild, the bound used as
+			the next-best value depends on the LOOSE_BOUND
+			flag. For most problem classes, defining
+			QUICK_MIN increased speed considerably in our
+			tests.
+LOOSE_BOUND		Relevant only in the QUICK_MIN case. If
+			LOOSE_BOUND is defined, a node's next-best
+			value is set to be the partial reduced cost of
+			the costliest arc in the node's new best-list.
+			If LOOSE_BOUND is undefined, the next-best
+			value is set to be the partial reduced cost of
+			the least costly arc excluded from the node's
+			new best-list. The latter of these two options
+			proved better in our tests, probably because
+			all of the node's incident arcs must be
+			examined during the rebuild anyway, so nothing
+			is gained by storing a looser bound than we
+			might.
+NUM_BEST		If QUICK_MIN is defined, NUM_BEST is the
+			number of candidate arcs to save with each
+			node in an attempt to avoid scanning all of a
+			node's incident arcs while computing the
+			minimum reduced-cost arc for a particular
+			node. The larger this number, the greater the
+			tendency to avoid looking at all the arcs, but
+			the higher the cost of rebuilding each node's
+			list of candidates when all arcs must be
+			examined. NUM_BEST must be at least 2. If
+			tournament sorts could be coded easily for
+			general values of NUM_BEST, perhaps we would
+			have used a higher value, but our best
+			implementation had NUM_BEST = 3.
+
+STORE_REV_ARCS		If STORE_REV_ARCS is defined, fields are
+			allocated in the data structures to hold
+			reverse arcs, and the parser fills those
+			fields. Reverse arcs support global price
+			updates and back-arc price-outs. See below.
+
+BACK_PRICE_OUT		Relevant only in the USE_PRICE_OUT case. This
+			option is designed to take advantage of the
+			fact that if the matching arc incident to a
+			node is priced out, all the arcs incident to
+			that node may as well be priced out. In the
+			STRONG_PO case, this option led to poor
+			performance by being too aggressive. With
+			STRONG_PO undefined, this option still did not
+			seem to help, although all price-outs
+			performed in this case are justified by the
+			theory. This option is valid only if
+			STORE_REV_ARCS is defined.
+
+USE_P_REFINE		If USE_P_REFINE is defined, price refinement
+			is switched on. Price refinement determines,
+			following the decrease of epsilon at each
+			iteration, whether the current assignment is
+			already epsilon-optimal before calling refine.
+			If the current assignment is already epsilon
+			optimal, execution of refine is avoided at
+			that iteration. In our tests, refine tended to
+			execute faster than the price refinement that
+			would have obviated its execution.
+
+USE_P_UPDATE		If USE_P_UPDATE is defined, global price
+			updates are switched on. Global price updates
+			use what amounts to a scaling shortest-paths
+			computation executed at itervals during refine
+			to ensure that there is a path from every
+			excess to some deficit in the admissible
+			graph.
+NO_FEAS_PROMISE		If NO_FEAS_PROMISE is defined, p_update()
+			and/or sp_aug() check at a certain point
+			whether any node with excess lacks an outgoing
+			residual arc, and balk if it does. This
+			condition cannot arise for the well-behaved
+			classes of graphs we tested, and this option
+			is normally switched off. To handle
+			poorly-behaved graphs properly, somewhat
+			greater care than merely defining
+			NO_FEAS_PROMISE would be required.
+P_U_ZERO_BACK_MCH_ARCS	If P_U_ZERO_BACK_MCH_ARCS is defined,
+			p_update() preprocesses the graph at each
+			invocation to reduce the number of arithmetic
+			operations required during node scans. I never
+			found a class of graphs for which this
+			preprocessing paid off, so this option is
+			normally (and best) left undefined.
+
+DEBUG			If DEBUG is defined, various forms of highly
+			verbose debugging output are produced. Not for
+			the faint of heart.
+CHECK_EPS_OPT		If CHECK_EPS_OPT is defined, epsilon
+			optimality of the current assignment is
+			verified at critical stages of the
+			computation, and error messages are printed if
+			the check fails. This option was used for
+			debugging.
+VERBOSE_TIME		If VERBOSE_TIME is defined, timing information
+			for each iteration is displayed separately.
+			Otherwise, only aggregate time is displayed
+			upon completion.
+
+Command line usage:
+progname <scale> <up_freq> <po_thresh> <po_ck_freq>
+<scale>		scale factor
+<up_freq>	global update frequency in terms of relabelings
+<po_thresh>	reduced-cost threshold in units of epsilon for strong
+		price-outs
+<po_ck_freq>	frequency in terms of relabelings of checking
+		priced-out arcs for pricing back in
+All command line parameters are optional and have reasonable default
+values. If global updates are not used, no <up_freq> parameter is
+expected, nor may one be supplied. If strong price-outs are not used,
+no <po_thresh> or <po_ck_freq> parameters are expected, nor may either
+be supplied. Supplying any parameter on the command line requires that
+all those preceding it in the above description be supplied also.
+
+The technical report describing the research surrounding this code is
+available in compressed postscript by anonymous ftp from
+theory.stanford.edu; the filename is pub/goldberg/stan-cs-93-1481.ps.Z.
+The code we called CSA-B in our paper is prec_costs/csa_s.
+The code we called CSA-Q in our paper is prec_costs/csa_s_qm.
+The code we called CSA-S in our paper is prec_costs/csa_s_spo.
+
+Please report any problems to Robert Kennedy, robert@cs.stanford.edu.
+No one makes any commitment to fix problems with this code, although
+we probably will try to address complaints about it. Please see the
+copyright notice in main.c.

@@ -1,0 +1,11 @@
+No output, m é o factor pelo qual eles multiplicam os pesos.
+
+Os tempos de processamento indicados no output sao o numero de segundos * 1000.
+Para obter os lambdas, é preciso dividir o primeiro valor pelo segundo, em cada linha começada por l.
+
+--max-bp-only
+invalida --print-cuts, vai direito ao ultimo breakpoint e calcula o valor do flow.
+
+Feb 18
+
+Para passar um range, -1 significa q não há limite (pelo menos para o limite inferior é assim)

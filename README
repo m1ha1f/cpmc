@@ -1,0 +1,113 @@
+CPMC, version 1.0
+
+Extension of the algorithm in the paper:
+
+Constrained Parametric Min-Cuts for Automatic Object Segmentation,
+Joao Carreira and Cristian Sminchisescu,
+CVPR 2010
+
+
+--------------------
+
+Overall idea
+
+The algorithm generates multiple energy minimization problems,
+by placing alternative square foreground seeds on a regular grid.
+It then solves all the problems for multiple parameters using 
+parametric max-flow, and filters similar solutions. 
+Finally it computes features on the remaining segments and ranks them.
+
+---------------------------
+
+Differences to original paper:
+
+This version corresponds almost exactly to the one used on the VOC2010 challenge. 
+The differences to the CVPR 2010 paper (and VOC2009 challenge) are:
+
+- uses a single soft background "frame"-seed, instead of 4 hard "frame" seeds. This reduces 
+the number of parametric max flow (PMF) problems to solve to a fourth.
+- resize the image to 50%, by default,  before solving the PMF problems. Also to improve speed.
+- can generate segments inside regions of interest defined by rectangles (uses by default a uniform grid  of regions of interest, but supports using a detector ).
+- can generate seeds on a grid but with the precise locations defined by closeby superpixels.
+- ranking with linear regression on appearance and shape features, using random features to
+approximate the laplacian kernel, which is suitable for histogram features. See info in the paper "Random Features for Large-Scale Kernel Machines", Ali Rahimi. 
+The approximation of the laplacian kernel was implemented by Fuxin Li and Catalin Ionescu.
+- Tuned to get high recall on VOC, so that it could potentially be used for detection. It's designed to rank from 800 to 100/200. 
+The CVPR10/Pascal09 version was designed to rank down from 150 to 50/90.
+
+This package doesn't contain the code to learn the ranking models, but it includes two pretrained models, one on the training set and one on trainval set of 
+the VOC2010 segmentation dataset.
+
+--------------------
+
+Usage:
+
+Follow the cpmc_example.m to see how to use the code. See cpmc.m to see the options you can pass to generate segments.
+
+
+--------------------
+
+External code included:
+
+- Parametric max flow implementations: http://riot.ieor.berkeley.edu/riot/Applications/Pseudoflow/parametric.html and 
+http://research.microsoft.com/en-us/downloads/d3adb5f7-49ea-4170-abde-ea0206b25de2/default.aspx with custom additional mex files.
+
+- clipboxes.m from http://people.cs.uchicago.edu/~pff/latent-release4/
+
+- pdist2.m: http://vision.ucsd.edu/~pdollar/toolbox/doc/index.html
+
+- functions from: http://www.csse.uwa.edu.au/~pk/Research/MatlabFns/
+
+- Optimized chi-square code: http://mloss.org/software/view/64/
+
+- An adaptation to segments of the pyramid hog code in http://www.robots.ox.ac.uk/~vgg/research/caltech/
+
+- vlfeats: www.vlfeat.org/
+
+- FH segmentation algorithm mex file from: from http://www.robots.ox.ac.uk/~ojw/software.htm for placing seeds inside the superpixels closer to locations in the regular grid.
+
+- Gauthier Fleutot immerge.
+
+- csift: http://staff.science.uva.nl/~ksande/research/colordescriptors/
+
+- globalPb: http://www.eecs.berkeley.edu/~arbelaez/globalPb.html
+
+Not included but supported: 
+
+- deformable part models: get in http://people.cs.uchicago.edu/~pff/latent/ and  http://people.cs.uchicago.edu/~rbg/star-cascade/
+You can define bounding boxes as regions of interest where additional seeds can be placed. See cpmc.m
+
+--------------------
+
+Compatibility
+
+Tested on linux 64bits and 32bits, with Matlab 7.9 and 7.10.
+
+--------------------
+
+Running Time and Requirements
+
+On a 2.00Ghz multicore cpu, running with 8 threads, it takes around 7 minutes to process an image.
+First 4 minutes are for getting the globalPB contour map and the last 3 minutes for the cpmc algorithm itself.
+Generating the segments takes around 1 minute the other 2 minutes are spent computing features and ranking the segments.
+Tested on a computer with 10Gb of RAM memory, without any problem.
+
+PB files for the examples in data/JPEGImages have been precomputed.
+
+--------------------
+
+Support:
+
+Contact carreira@ins.uni-bonn.de or cristian.sminchisescu@ins.uni-bonn.de. 
+Regarding bugs and comments on the code, contact preferentially the first.
+
+---------
+
+Version history:
+
+1.0
+------
+
+- First public release.
+
+See the Changes file for all additions since the first release.

@@ -1,0 +1,15 @@
+
+filterbank.{h,cc} - even/odd gaussian derivative type filtering
+histogram.{h,cc}  - generic histogram array manipulation
+
+color.{h,cc}      - color histograms, gradients and patch comparison
+texture.{h,cc}    - textons, texture histograms, gradients and patch comparison
+
+nonmax.{h,cc}     - nonmaxima suppression
+pb.{h,cc}         - computing Pb using gradient computations
+ic.{h,cc}         - intervening contour computations
+
+region.{h,cc}     - compute patch based region similarities
+
+affinity.{h,cc}   - combine pb and region info to predict P(samesegment) 
+

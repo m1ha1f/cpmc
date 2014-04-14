@@ -1,0 +1,25 @@
+5th October
+
+- Added missing overlap.c file.
+
+2nd November
+
+- Fixed lines 142-144 of cpmc(). When number of segments was smaller than dimensionality of first cell of features, it crashed.
+Noticed and contributed by Jasper Uijlings.
+
+9th November
+
+- Added missing cartprod_mex.c file.
+
+10th February
+
+- Fixed semi-serious bug in SegmentProcessor.m
+There was a problem filtering segments using the cut ratio. It was removing the wrong segments.
+
+13th February
+
+- Code can now run in 32-bits linux. The changes required were contributed by Andreas Mueller. Thanks Andreas!
+Also added his two mex files overlap_care.c and my_phog_desc_mex.c.
+
+- Added a script for recompiling mex files (compile.m).
+Some files use OMP and require the user to set the path to matlab in a Makefile which is now provided in code/.

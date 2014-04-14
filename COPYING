@@ -1,0 +1,54 @@
+Copyright (C) 2010 Joao Carreira
+
+For licensing please contact both Joao Carreira and Cristian Sminchisescu:
+
+ Joao Carreira                                         Cristian Sminchisescu                             
+ carreira@ins.uni-bonn.de                   cristian.sminchisescu@ins.uni-bonn.de
+
+ University of Bonn, INS
+ Computer Vision and Machine Learning Group
+ Wegelerstrasse 6, 53115, Bonn
+ Germany
+    
+LICENSING AGREEMENT
+
+This program, CPMC, is granted free of charge for non-commercial research and
+education purposes. The software and derivatives of the software must 
+not be distributed commercially without prior 
+permission from the authors. A license must be obtained from the authors 
+for commercial purposes.
+
+Scientific results produced using the CPMC software should acknowledge its use 
+from the authors and cite the following articles (we would like to hear about it 
+if it turns out to be useful in your work and/or whenever research based on it is 
+published):  
+
+@inproceedings{carreira_cvpr10,
+  author = {J. Carreira and C. Sminchisescu},
+  title = {{Constrained Parametric Min-Cuts for Automatic Object Segmentation}},
+  booktitle = {IEEE International Conference on Computer Vision and Pattern Recognition},
+  year = {2010},
+  month = {June}, 
+  pdf = {http://sminchisescu.ins.uni-bonn.de/papers/cs-cvpr10.pdf 1}
+}
+
+@misc{cpmc-release1,
+ author = "J. Carreira and C. Sminchisescu",
+ title = "Constrained Parametric Min-Cuts for Automatic Object Segmentation, Release 1",
+ howpublished = "http://sminchisescu.ins.uni-bonn.de/code/cpmc/"}
+
+Get the most recent version from http://sminchisescu.ins.uni-bonn.de/code/cpmc/
+
+
+THE PROGRAM IS LICENSED FREE OF CHARGE FOR ACADEMIC USE. THERE IS NO WARRANTY
+FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. THE SOFTWARE IS 
+PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS 
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+By using the CPMC software you agree to all licensing terms.
+

@@ -1,0 +1,30 @@
+Copyright (c) Koen van de Sande / University of Amsterdam
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any direct,
+indirect, consequential, special, incidental, or other damages, including
+but not limited to damages for lost profits, interruption of business,
+lost or corrupted data or programs, system crashes, or diversion of system
+or other resources, arising out of or relating to this license or the
+performance, quality, results, use of, or inability to use this software.
+
+The authors shall not be liable for any claim asserted against you by any
+other party, including but not limited to claims for infringement of copyright
+or other intellectual property rights. Any commercial use of this software
+requires a license from the University of Amsterdam.
+
+Note that the SIFT method is patented by the University of British Columbia.
+Therefore, while this software contains its own implementation of SIFT,
+for commercial use a license can be obtained to:
+
+"Method and apparatus for identifying scale invariant
+features in an image and use of same for locating an object in an
+image," David G. Lowe, US Patent 6,711,293 (March 23,
+2004). Provisional application filed March 8, 1999. Asignee: The
+University of British Columbia.
+
+For further details on obtaining a commercial SIFT license, contact David
+Lowe (lowe at cs.ubc.ca) or the University-Industry Liaison Office of the
+University of British Columbia.
+
+This license must be retained with all copies of the software.

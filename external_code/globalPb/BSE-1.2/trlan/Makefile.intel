@@ -1,0 +1,17 @@
+FC = ifort -O3 -132 
+F90 = ifort -O3 
+
+.SUFFIXES: .f90 .f .o
+
+OBJ=dsort2.o trl_info.o dstqrb.o trlcore.o trlan.o restart.o trlaux.o trlan77.o
+
+libtrlan.a: ${OBJ} trl_comm_none.o
+	ar -cru libtrlan.a ${OBJ} trl_comm_none.o
+
+clean:
+	/bin/rm -f *.o *.mod
+
+.f.o:
+	${FC} -c $<
+.f90.o:
+	${F90} -c $<

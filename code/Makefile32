@@ -1,0 +1,29 @@
+CC = gcc #gcc-4.2
+MATLABDIR=/home/joao/matlab
+INCLUDES=-I$(MATLABDIR)/extern/include
+LDIRS= -L$(MATLABDIR)/bin/glnx86
+EXE_TARGETS = segm_intersection_mex.mexglx segm_overlap_mex.mexglx
+
+all: $(EXE_TARGETS) 
+
+overlap.o: overlap.c
+	$(CC) -D__MAIN__ -O3  -fPIC -c $(INCLUDES) -fopenmp -o overlap.o overlap.c
+
+intersection.o: intersection.c
+	$(CC) -D__MAIN__ -O3  -fPIC -c $(INCLUDES) -fopenmp -o intersection.o intersection.c
+
+segm_overlap_mex.o: segm_overlap_mex.c
+	$(CC) -O3 -c $(INCLUDES)  -o segm_overlap_mex.o segm_overlap_mex.c -fPIC
+
+segm_intersection_mex.o: segm_intersection_mex.c
+	$(CC) -O3 -c $(INCLUDES)  -o segm_intersection_mex.o segm_intersection_mex.c -fPIC
+
+
+segm_overlap_mex.mexglx: segm_overlap_mex.o overlap.o
+	$(CC) segm_overlap_mex.o  $(LDIRS) -lmex -fopenmp  -shared -o segm_overlap_mex.mexglx overlap.o
+
+segm_intersection_mex.mexglx: segm_intersection_mex.o intersection.o
+	$(CC) segm_intersection_mex.o  $(LDIRS) -lmex -fopenmp  -shared -o segm_intersection_mex.mexglx intersection.o
+
+clean:
+	rm -f *.o $(EXE_TARGETS) $(LIB_TARGETS)

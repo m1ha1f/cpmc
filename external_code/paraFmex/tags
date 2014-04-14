@@ -1,0 +1,163 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+Arc	hoch_pseudo_par.c	/^} Arc;$/;"	t	typeref:struct:arc	file:
+Arc	pseudopar.c	/^} Arc;$/;"	t	typeref:struct:arc	file:
+Node	hoch_pseudo_par.c	/^} Node;$/;"	t	typeref:struct:node	file:
+Node	pseudopar.c	/^} Node;$/;"	t	typeref:struct:node	file:
+Root	hoch_pseudo_par.c	/^} Root;$/;"	t	typeref:struct:root	file:
+Root	pseudopar.c	/^} Root;$/;"	t	typeref:struct:root	file:
+addOutOfTreeNode	hoch_pseudo_par.c	/^addOutOfTreeNode (Node *n, Arc *out) $/;"	f	file:
+addOutOfTreeNode	pseudopar.c	/^addOutOfTreeNode (Node *n, Arc *out) $/;"	f	file:
+addRelationship	hoch_pseudo_par.c	/^static  int  addRelationship (Node *newParent, Node *child) $/;"	f	file:
+addRelationship	pseudopar.c	/^addRelationship (Node *newParent, Node *child) $/;"	f	file:
+addToStrongBucket	hoch_pseudo_par.c	/^addToStrongBucket (Node *newRoot, Node *rootEnd) $/;"	f	file:
+addToStrongBucket	pseudopar.c	/^addToStrongBucket (Node *newRoot, Node *rootEnd) $/;"	f	file:
+adjacencyList	hoch_pseudo_par.c	/^static Node *adjacencyList = NULL;$/;"	v	file:
+adjacencyList	pseudopar.c	/^static Node *adjacencyList = NULL;$/;"	v	file:
+arc	hoch_pseudo_par.c	/^typedef struct arc $/;"	s	file:
+arc	pseudopar.c	/^typedef struct arc $/;"	s	file:
+arcList	hoch_pseudo_par.c	/^static Arc *arcList = NULL;$/;"	v	file:
+arcList	pseudopar.c	/^static Arc *arcList = NULL;$/;"	v	file:
+arcToParent	hoch_pseudo_par.c	/^	Arc *arcToParent;$/;"	m	struct:node	file:
+arcToParent	pseudopar.c	/^	Arc *arcToParent;$/;"	m	struct:node	file:
+breakRelationship	hoch_pseudo_par.c	/^static void breakRelationship (Node *oldParent, Node *child)$/;"	f	file:
+breakRelationship	pseudopar.c	/^breakRelationship (Node *oldParent, Node *child) $/;"	f	file:
+breakpoint	hoch_pseudo_par.c	/^	int breakpoint;$/;"	m	struct:node	file:
+breakpoint	pseudopar.c	/^	int breakpoint;$/;"	m	struct:node	file:
+capacities	hoch_pseudo_par.c	/^	int *capacities;$/;"	m	struct:arc	file:
+capacities	pseudopar.c	/^	int *capacities;$/;"	m	struct:arc	file:
+capacity	hoch_pseudo_par.c	/^	int capacity;$/;"	m	struct:arc	file:
+capacity	pseudopar.c	/^	int capacity;$/;"	m	struct:arc	file:
+checkChildren	hoch_pseudo_par.c	/^checkChildren (Node *curNode) $/;"	f	file:
+checkChildren	pseudopar.c	/^checkChildren (Node *curNode) $/;"	f	file:
+checkOptimality	hoch_pseudo_par.c	/^checkOptimality (void) $/;"	f	file:
+checkOptimality	pseudopar.c	/^checkOptimality (void) $/;"	f	file:
+childList	hoch_pseudo_par.c	/^	struct node *childList;$/;"	m	struct:node	typeref:struct:node::node	file:
+childList	pseudopar.c	/^	struct node *childList;$/;"	m	struct:node	typeref:struct:node::node	file:
+computeMinCut	hoch_pseudo_par.c	/^computeMinCut (void)$/;"	f	file:
+computeMinCut	pseudopar.c	/^computeMinCut (void)$/;"	f	file:
+createOutOfTree	hoch_pseudo_par.c	/^createOutOfTree (Node *nd)$/;"	f	file:
+createOutOfTree	pseudopar.c	/^createOutOfTree (Node *nd)$/;"	f	file:
+decompose	hoch_pseudo_par.c	/^decompose (Node *excessNode, const int source, int *iteration) $/;"	f	file:
+decompose	pseudopar.c	/^decompose (Node *excessNode, const int source, int *iteration) $/;"	f	file:
+direction	hoch_pseudo_par.c	/^	int direction;$/;"	m	struct:arc	file:
+direction	pseudopar.c	/^	int direction;$/;"	m	struct:arc	file:
+displayBreakpoints	hoch_pseudo_par.c	/^displayBreakpoints (void)$/;"	f	file:
+displayBreakpoints	pseudopar.c	/^displayBreakpoints (void)$/;"	f	file:
+end	hoch_pseudo_par.c	/^	Node *end;$/;"	m	struct:root	file:
+end	pseudopar.c	/^	Node *end;$/;"	m	struct:root	file:
+excess	hoch_pseudo_par.c	/^	int excess;$/;"	m	struct:node	file:
+excess	pseudopar.c	/^	int excess;$/;"	m	struct:node	file:
+findWeakNode	hoch_pseudo_par.c	/^findWeakNode (Node *strongNode, Node **weakNode) $/;"	f	file:
+findWeakNode	pseudopar.c	/^findWeakNode (Node *strongNode, Node **weakNode) $/;"	f	file:
+flow	hoch_pseudo_par.c	/^	int flow;$/;"	m	struct:arc	file:
+flow	pseudopar.c	/^	int flow;$/;"	m	struct:arc	file:
+freeMemory	hoch_pseudo_par.c	/^freeMemory (void)$/;"	f	file:
+freeMemory	pseudopar.c	/^freeMemory (void)$/;"	f	file:
+freeRoot	hoch_pseudo_par.c	/^freeRoot (Root *rt) $/;"	f	file:
+freeRoot	pseudopar.c	/^freeRoot (Root *rt) $/;"	f	file:
+from	hoch_pseudo_par.c	/^	struct node *from;$/;"	m	struct:arc	typeref:struct:arc::node	file:
+from	pseudopar.c	/^	struct node *from;$/;"	m	struct:arc	typeref:struct:arc::node	file:
+getHighestStrongRoot	hoch_pseudo_par.c	/^getHighestStrongRoot (const int theparam) $/;"	f	file:
+getHighestStrongRoot	pseudopar.c	/^getHighestStrongRoot (const int theparam) $/;"	f	file:
+getNextWord	pseudopar.c	/^getNextWord (char *line, char *word)$/;"	f	file:
+highestStrongLabel	hoch_pseudo_par.c	/^static int highestStrongLabel = 1;$/;"	v	file:
+highestStrongLabel	pseudopar.c	/^static int highestStrongLabel = 1;$/;"	v	file:
+initializeArc	hoch_pseudo_par.c	/^initializeArc (Arc *ac)$/;"	f	file:
+initializeArc	pseudopar.c	/^initializeArc (Arc *ac)$/;"	f	file:
+initializeNode	hoch_pseudo_par.c	/^initializeNode (Node *nd, const int n)$/;"	f	file:
+initializeNode	pseudopar.c	/^initializeNode (Node *nd, const int n)$/;"	f	file:
+initializeRoot	hoch_pseudo_par.c	/^initializeRoot (Root *rt) $/;"	f	file:
+initializeRoot	pseudopar.c	/^initializeRoot (Root *rt) $/;"	f	file:
+jlGetPars	hoch_pseudo_par.c	/^void jlGetPars(int nrhs,const mxArray *prhs[]) {$/;"	f
+label	hoch_pseudo_par.c	/^	int label;$/;"	m	struct:node	file:
+label	pseudopar.c	/^	int label;$/;"	m	struct:node	file:
+labelCount	hoch_pseudo_par.c	/^static int *labelCount = NULL;$/;"	v	file:
+labelCount	pseudopar.c	/^static int *labelCount = NULL;$/;"	v	file:
+liftAll	hoch_pseudo_par.c	/^liftAll (Node *rootNode, const int theparam) $/;"	f	file:
+liftAll	pseudopar.c	/^liftAll (Node *rootNode, const int theparam) $/;"	f	file:
+llint	hoch_pseudo_par.c	/^typedef long long int llint;$/;"	t	file:
+llint	pseudopar.c	/^typedef long long int llint;$/;"	t	file:
+main	pseudopar.c	/^main(int argc, char ** argv) $/;"	f
+merge	hoch_pseudo_par.c	/^merge (Node *parent, Node *child, Arc *newArc) $/;"	f	file:
+merge	pseudopar.c	/^merge (Node *parent, Node *child, Arc *newArc) $/;"	f	file:
+mexFunction	hoch_pseudo_par.c	/^void mexFunction(int nlhs,mxArray *plhs[],int nrhs,const mxArray *prhs[])$/;"	f
+minisort	hoch_pseudo_par.c	/^minisort (Node *current) $/;"	f	file:
+minisort	pseudopar.c	/^minisort (Node *current) $/;"	f	file:
+next	hoch_pseudo_par.c	/^	struct node *next;$/;"	m	struct:node	typeref:struct:node::node	file:
+next	pseudopar.c	/^	struct node *next;$/;"	m	struct:node	typeref:struct:node::node	file:
+nextArc	hoch_pseudo_par.c	/^	int nextArc;$/;"	m	struct:node	file:
+nextArc	pseudopar.c	/^	int nextArc;$/;"	m	struct:node	file:
+nextScan	hoch_pseudo_par.c	/^	struct node *nextScan;$/;"	m	struct:node	typeref:struct:node::node	file:
+nextScan	pseudopar.c	/^	struct node *nextScan;$/;"	m	struct:node	typeref:struct:node::node	file:
+node	hoch_pseudo_par.c	/^typedef struct node $/;"	s	file:
+node	pseudopar.c	/^typedef struct node $/;"	s	file:
+numAdjacent	hoch_pseudo_par.c	/^	int numAdjacent;$/;"	m	struct:node	file:
+numAdjacent	pseudopar.c	/^	int numAdjacent;$/;"	m	struct:node	file:
+numArcScans	hoch_pseudo_par.c	/^static llint numArcScans = 0;$/;"	v	file:
+numArcScans	pseudopar.c	/^static llint numArcScans = 0;$/;"	v	file:
+numArcs	hoch_pseudo_par.c	/^static int numArcs = 0;$/;"	v	file:
+numArcs	pseudopar.c	/^static int numArcs = 0;$/;"	v	file:
+numGaps	hoch_pseudo_par.c	/^static int numGaps = 0;$/;"	v	file:
+numGaps	pseudopar.c	/^static int numGaps = 0;$/;"	v	file:
+numMergers	hoch_pseudo_par.c	/^static int numMergers = 0;$/;"	v	file:
+numMergers	pseudopar.c	/^static int numMergers = 0;$/;"	v	file:
+numNodes	hoch_pseudo_par.c	/^static int numNodes = 0;$/;"	v	file:
+numNodes	pseudopar.c	/^static int numNodes = 0;$/;"	v	file:
+numOutOfTree	hoch_pseudo_par.c	/^	int numOutOfTree;$/;"	m	struct:node	file:
+numOutOfTree	pseudopar.c	/^	int numOutOfTree;$/;"	m	struct:node	file:
+numParams	hoch_pseudo_par.c	/^static int numParams = 0;$/;"	v	file:
+numParams	pseudopar.c	/^static int numParams = 0;$/;"	v	file:
+numPushes	hoch_pseudo_par.c	/^static llint numPushes = 0;$/;"	v	file:
+numPushes	pseudopar.c	/^static llint numPushes = 0;$/;"	v	file:
+numRelabels	hoch_pseudo_par.c	/^static int numRelabels = 0;$/;"	v	file:
+numRelabels	pseudopar.c	/^static int numRelabels = 0;$/;"	v	file:
+number	hoch_pseudo_par.c	/^	int number;$/;"	m	struct:node	file:
+number	pseudopar.c	/^	int number;$/;"	m	struct:node	file:
+outOfTree	hoch_pseudo_par.c	/^	Arc **outOfTree;$/;"	m	struct:node	file:
+outOfTree	pseudopar.c	/^	Arc **outOfTree;$/;"	m	struct:node	file:
+parent	hoch_pseudo_par.c	/^	struct node *parent;$/;"	m	struct:node	typeref:struct:node::node	file:
+parent	pseudopar.c	/^	struct node *parent;$/;"	m	struct:node	typeref:struct:node::node	file:
+prev	hoch_pseudo_par.c	/^	struct node *prev;$/;"	m	struct:node	typeref:struct:node::node	file:
+prev	pseudopar.c	/^	struct node *prev;$/;"	m	struct:node	typeref:struct:node::node	file:
+processRoot	hoch_pseudo_par.c	/^processRoot (Node *strongRoot) $/;"	f	file:
+processRoot	pseudopar.c	/^processRoot (Node *strongRoot) $/;"	f	file:
+pseudoflowPhase1	hoch_pseudo_par.c	/^pseudoflowPhase1 (void) $/;"	f	file:
+pseudoflowPhase1	pseudopar.c	/^pseudoflowPhase1 (void) $/;"	f	file:
+pushDownward	hoch_pseudo_par.c	/^static void pushDownward (Arc *currentArc, Node *child, Node *parent, int flow)$/;"	f	file:
+pushDownward	pseudopar.c	/^pushDownward (Arc *currentArc, Node *child, Node *parent, int flow) $/;"	f	file:
+pushExcess	hoch_pseudo_par.c	/^pushExcess (Node *strongRoot) $/;"	f	file:
+pushExcess	pseudopar.c	/^pushExcess (Node *strongRoot) $/;"	f	file:
+pushUpward	hoch_pseudo_par.c	/^static void pushUpward (Arc *currentArc, Node *child, Node *parent, const int resCap) $/;"	f	file:
+pushUpward	pseudopar.c	/^pushUpward (Arc *currentArc, Node *child, Node *parent, const int resCap) $/;"	f	file:
+quickSort	hoch_pseudo_par.c	/^quickSort (Arc **arr, const int first, const int last)$/;"	f	file:
+quickSort	pseudopar.c	/^quickSort (Arc **arr, const int first, const int last)$/;"	f	file:
+readDimacsFileCreateList	pseudopar.c	/^readDimacsFileCreateList (void) $/;"	f	file:
+recoverFlow	hoch_pseudo_par.c	/^recoverFlow (void)$/;"	f	file:
+recoverFlow	pseudopar.c	/^recoverFlow (void)$/;"	f	file:
+root	hoch_pseudo_par.c	/^typedef struct root $/;"	s	file:
+root	pseudopar.c	/^typedef struct root $/;"	s	file:
+simpleInitialization	hoch_pseudo_par.c	/^simpleInitialization (void) $/;"	f	file:
+simpleInitialization	pseudopar.c	/^simpleInitialization (void) $/;"	f	file:
+sink	hoch_pseudo_par.c	/^static int sink = 0;$/;"	v	file:
+sink	pseudopar.c	/^static int sink = 0;$/;"	v	file:
+sort	hoch_pseudo_par.c	/^sort (Node * current)$/;"	f	file:
+sort	pseudopar.c	/^sort (Node * current)$/;"	f	file:
+source	hoch_pseudo_par.c	/^static int source = 0;$/;"	v	file:
+source	pseudopar.c	/^static int source = 0;$/;"	v	file:
+start	hoch_pseudo_par.c	/^	Node *start;$/;"	m	struct:root	file:
+start	pseudopar.c	/^	Node *start;$/;"	m	struct:root	file:
+strongRoots	hoch_pseudo_par.c	/^static Root *strongRoots = NULL;$/;"	v	file:
+strongRoots	pseudopar.c	/^static Root *strongRoots = NULL;$/;"	v	file:
+timer	hoch_pseudo_par.c	/^timer (void)$/;"	f
+timer	pseudopar.c	/^timer (void)$/;"	f
+to	hoch_pseudo_par.c	/^	struct node *to;$/;"	m	struct:arc	typeref:struct:arc::node	file:
+to	pseudopar.c	/^	struct node *to;$/;"	m	struct:arc	typeref:struct:arc::node	file:
+updateCapacities	hoch_pseudo_par.c	/^updateCapacities (const int theparam)$/;"	f	file:
+updateCapacities	pseudopar.c	/^updateCapacities (const int theparam)$/;"	f	file:
+visited	hoch_pseudo_par.c	/^	int visited;$/;"	m	struct:node	file:
+visited	pseudopar.c	/^	int visited;$/;"	m	struct:node	file:

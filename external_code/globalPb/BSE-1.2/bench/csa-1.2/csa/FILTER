@@ -1,0 +1,1 @@
+cat main.c | sed 's/#include/\/\*\*\/#include/' | cpp -P -C -DQUICK_MIN | sed 's/\/\*\*\/#include/#include/' | indent > main2.c

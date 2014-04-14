@@ -1,0 +1,23 @@
+-i2     /*indent level*/
+-ts2    /*tab size*/
+-nut    /*no tabs*/
+-bad    /*blank line after decl*/
+-bap    /*blank line after proc.*/
+-di1    /*declaration indentation*/
+-cli2   /*case indentation*/
+-cbi0   /*case brace indentation*/
+/*-bfda   break function decl args*/
+-lp     /*continue at parens*/
+-nce    /*dont cuddle else*/
+-ncdw   /*dont cuddle dowhile*/
+-npcs   /*no space after funcalls*/
+-nsai   /*no space after if*/
+-nprs   /*no space after parens*/
+-ncs    /*no space after casts*/
+-nsaf   /*no space after for*/
+-nfca   /*dont format comments*/
+-sob    /*swallow optional blank lines*/
+-bls    /*braces-after-struct-decl-line*/
+-bl     /*braces after if line*/
+-bli0   /*brace indent = 0 */
+
