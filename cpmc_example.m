@@ -10,7 +10,8 @@ function cpmc_example()
     addpath('./external_code/vlfeats/toolbox/mex/mexa64/');
     addpath('./external_code/vlfeats/toolbox/mex/mexglx/');
     addpath('./external_code/globalPb/lib/');
-    addpath('./external_code/mpi-chi2-v1_5/');        
+    addpath('./external_code/mpi-chi2-v1_5/'); 
+    addpath('./external_code/CMF v1.0');
     
     % create multiple threads (set how many you have)
     N_THREADS = 8;

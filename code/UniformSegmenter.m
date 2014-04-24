@@ -54,16 +54,9 @@ classdef UniformSegmenter < Segmenter
 
          
         function obj = add_hyp_conns(obj)
-            [hyp_conns, types] = obj.generate_growth_hyps('internal');
-            obj.P = obj.P.add_hyp_connections(types, hyp_conns);
-            
-            obj.RECT_DIMS = round(obj.RECT_DIMS/2); % these can be smaller
-            [hyp_conns, types] = obj.generate_growth_hyps('external'); 
-            obj.P = obj.P.add_hyp_connections(types, hyp_conns);   
-            
-            % just frame
-            [hyp_conns, types] = obj.generate_subframes_growth_hyps();
-            obj.P = obj.P.add_hyp_connections(types, hyp_conns);
+            [Cs, Ct] = obj.generate_growth_hyps('internal');
+            obj.Cs = Cs;
+            obj.Ct = Ct;
         end
         
         % just call the superclass methods

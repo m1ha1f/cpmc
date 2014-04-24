@@ -174,90 +174,28 @@ classdef GraphProb
             %obj.show_seed_hyps();           
         end
         
-        function [obj] = solve(obj, type, var_a, var_b)   
-            % finds minimum cut separating var_a and var_b
-            partitions = cell(1, max(1,size(obj.hypConn,1)));
-            ids = double(obj.mapVars(type));
-                        
-            disp('solving...');
-            
-            parfor(i=1:max(1,size(obj.hypConn,1)), 8)
-            %parfor i=1:max(1,size(obj.hypConn,1))
-                %i
-                hyp_prob_dgraph = obj.prob_dgraph;
-                hyp_parametric_dgraph = obj.parametric_dgraph;
-                if(~isempty(obj.hypConn))                        
-                    hConn = obj.hypConn(i,:);
-                    vars1 = []; vars2 = []; val = []; parametric_w= [];
-                    for j=1:size(hConn,2)
-                        if(~isempty(hConn{j}))
-                            the_hConn = hConn{j};
-                            vars1{j} = double(the_hConn.nodes_a);
-                            vars2{j} = double(the_hConn.nodes_b);
-                            val{j} = double(the_hConn.edge_strength);
-                            parametric_w{j} = double(the_hConn.parametric_weight);
-                            
-                            [vars1{j}, vars2{j}] = obj.make_equal_size(vars1{j}, vars2{j});
-                            [vars1{j}, val{j}] = obj.make_equal_size(vars1{j}, val{j});
-                            [vars1{j}, parametric_w{j}] = obj.make_equal_size(vars1{j}, parametric_w{j});
-                        end
-                    end
-                    vars1 = cell2mat(vars1'); 
-                    vars2 = cell2mat(vars2'); 
-                    val = cell2mat(val');
-                    parametric_w = cell2mat(parametric_w');                    
-                    
-                    %un_n_edges = unique(new_edges, 'rows');
-                    %assert((size(unique([vars1 vars2], 'rows'),1) - size([vars1 vars2],1)) == 0)
-                    hyp_prob_dgraph = hyp_prob_dgraph.add_edges([vars1 vars2; vars2 vars1], [val; val]);
-                    hyp_parametric_dgraph = hyp_parametric_dgraph.add_edges([vars1 vars2; vars2 vars1], [parametric_w; parametric_w]);
-                end
-                
-                %t = tic();
-                if(sum(sum(hyp_parametric_dgraph.D))>0)
-                    l = -1;
-                    u = obj.upper_bp;
-                    
-                    hyp_parametric_dgraph.D(:,ids(var_a)) = 0;
-                    hyp_parametric_dgraph.D(ids(var_b), :) = 0;
-                    [a,b] = find(hyp_parametric_dgraph.D);                    
-                    lambda_edges = [a b];
-                    lambda_weights =hyp_parametric_dgraph.D(hyp_parametric_dgraph.D>0);
-                    
-                    t = tic();
-                                        
-                    %%%%nodeset_a =  find(hyp_prob_dgraph.D(ids(var_a),:)==inf);                    
-                    nodeset_b = find(hyp_prob_dgraph.D(ids(var_b),:)==inf);
-                    if(~isempty(nodeset_b))
-                        nodeset = [nodeset_b ids(var_b)];                    
-                        ids_map_orig_to_new = 1:obj.n_vars;                    
-                        not_in_nodeset = setdiff(ids_map_orig_to_new, nodeset_b);
-                        [contr_obj, c_lambda_edges, c_lambda_weights, c_lambda_offsets, ids_map_orig_to_new, ids_map_new_to_orig, contraction_node] = hyp_prob_dgraph.contract_with_lambda(nodeset, lambda_edges, lambda_weights, ids_map_orig_to_new);                    
-                        [c_part, lambdas] = contr_obj.parametric_min_st_cut(c_lambda_edges, c_lambda_weights, ids_map_orig_to_new(ids(var_a)), ids_map_orig_to_new(ids(var_b)), l, u, 'hochbaum');                                     
-                        part = false(obj.n_vars,size(c_part,2));
-                        part(nodeset_b,:) = 1;
-                        part(not_in_nodeset,:) = c_part;
-                    else
-                        [part, lambdas] = hyp_prob_dgraph.parametric_min_st_cut(lambda_edges, lambda_weights, ids(var_a), ids(var_b), l, u, 'hochbaum');                    
-                    end
-                    
-                    %[part, lambdas] = hyp_prob_dgraph.parametric_min_st_cut(lambda_edges, lambda_weights, ids(var_a), ids(var_b), l, u, 'gallo');          
-                    %time_cut = toc(t)                
-                    % debug & understand
-                    if (~isempty(lambdas))
-                       %subplot_auto_transparent(part(1:end-2,:), obj.I, lambdas)                        
-                       %obj.show_seeds(obj.I, {obj.hypConn{i,1}.nodes_a}, true)
-                       %pause;
-                    end                    
-                    
-                    %
-                else
-                    [part, cut_value] =  hyp_prob_dgraph.min_st_cut(ids(var_a), ids(var_b), 'kolmogorov');                
-                end
-                
-                partitions{i} = part;
-                %toc(t)
+        function [obj] = solve(obj, type, Css, Ct)   
+            rows = size(obj.I, 1);
+            cols = size(obj.I, 2);
+            partitions = cell(1, numel(Css));
+
+            penalty = 0.5*ones(rows,cols);
+
+            for i = 1: numel(Css)
+                Cs = Css{i};
+
+                varParas = [rows; cols; 300; 1e-4; 0.3; 0.16];
+%                para 0,1 - rows, cols of the given image
+%                para 2 - the maximum number of iterations
+%                para 3 - the error bound for convergence
+%                para 4 - cc for the step-size of augmented Lagrangian method
+%                para 5 - the step-size for the graident-projection of p
+
+                [uu, erriter,num,tt] = CMF_GPU(single(penalty), single(Cs), single(Ct), single(varParas));
+
+                partitions{i} = reshape(uu, rows*cols, 1);
             end
+            
             obj.solution = ~cell2mat(partitions); % 1 is sink!
         end
         

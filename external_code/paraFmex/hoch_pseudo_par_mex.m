@@ -150,6 +150,10 @@ function  [n_nodes, n_arcs, n_params, s, t, normal_edges, special_edges] = aux_f
     %sink_lambda_weights = sink_lambda_weights + repmat( pars.lambda_offsets(t_lambda), 1, size(sink_lambda_weights,2));
      
     source_lambda_edges_rows = full([ lambda_edges(s_lambda,:) source_lambda_weights]);
+    disp('DEBUUUUUUUUUUUUUG')
+    size(source_lambda_edges_rows) %0x22
+    % source_lambda_edges_rows(1, :)
+   
     sink_lambda_edges_rows = full([ lambda_edges(t_lambda,:)  sink_lambda_weights]);
 
     duh_s = N(s,:);
@@ -176,6 +180,9 @@ function  [n_nodes, n_arcs, n_params, s, t, normal_edges, special_edges] = aux_f
     %%%%%%%%
     %special_edges = round([source_lambda_edges_rows; source_edges_rows; sink_lambda_edges_rows; sink_edges_rows]);
     special_edges = [source_lambda_edges_rows; source_edges_rows; sink_lambda_edges_rows; sink_edges_rows];
+    % disp('special edges')
+    % size(special_edges) %47000x22
+     % throw "sdas"
     %%%%%%%%
     
     N = N';

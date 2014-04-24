@@ -25,7 +25,10 @@ classdef Segmenter
         Foreground        
         
         P                  % GraphProb
-                
+               
+        Cs
+        Ct
+
         Segments      
         
         % early segment filtering
@@ -234,15 +237,14 @@ classdef Segmenter
             obj = obj.add_hyp_conns(); % this one gets specialized by subclasses
             
             %obj.display_subframes();
-            if(~isempty(obj.P.hypConn))
-                obj.P = obj.P.solve('classes', obj.Foreground, obj.Background);
-            else
-                return;
-            end
+           
+            obj.P = obj.P.solve('classes', obj.Cs, obj.Ct);
+            
             
             %obj.P.show_results();
             min_n_pixels = obj.resize_factor*obj.MIN_NPIXELS; % MIN_NPIXELS should be given in the size of the original image.
-            S = SegmentProcessor(obj.P.prob_dgraph, obj.P.get_type_solution('pixels'), obj.P.I, [obj.pb_path obj.img_name '_PB'], min_n_pixels, obj.DONT_BREAK_DISCONNECTED);
+            segments = obj.P.get_type_solution('pixels');
+            S = SegmentProcessor(obj.P.prob_dgraph, segments, obj.P.I, [obj.pb_path obj.img_name '_PB'], min_n_pixels, obj.DONT_BREAK_DISCONNECTED);
 
             t_en = tic();
             S = S.compute_energies();
@@ -802,25 +804,27 @@ classdef Segmenter
         
         % uniform unary potentials
         
-        function [hyp_conns, types] = generate_growth_hyps(obj, internal_external)
+        function [Cs, Ct] = generate_growth_hyps(obj, internal_external)
             types = {};
             
             frame_pixels = obj.img_frame;
             inside_frame = setdiff(obj.Pixels, frame_pixels);
             
             our_rect = obj.P.generate_rectangle_coords(obj.RECT_DIMS);
-            [fg_grid_hyp] = obj.P.generate_seeds('pixels', our_rect, obj.arrangement, obj.grid_dims);
-            
-            hyp_conns = [];
-            for i=1:numel(fg_grid_hyp)
-                if(strcmp(internal_external, 'internal'))
-                    [hyp_conn, types] = internal(obj, fg_grid_hyp{i});
-                    hyp_conns = [hyp_conns; hyp_conn];
-                else
-                    [hyp_conn, types] = subframe_plus_internal(obj, fg_grid_hyp{i}, inside_frame);
-                    hyp_conns = [hyp_conns; hyp_conn];
-                end
+            [foregroundSeeds] = obj.P.generate_seeds('pixels', our_rect, obj.arrangement, obj.grid_dims);
+
+            for i = 1:numel(foregroundSeeds)
+                Cs{i} = obj.compute_unary_values(foregroundSeeds{i});
+                Cs{i} = reshape(Cs{i}, size(obj.I, 1), size(obj.I, 2));
             end
+            
+
+            Img = ones(size(obj.I, 1), size(obj.I, 2));
+            Perimeter = bwperim(Img);
+            [ix iy] = find(Perimeter);
+            backgroundSeeds = sub2ind([size(obj.I, 1), size(obj.I, 2)], ix, iy);
+            Ct = obj.compute_unary_values(backgroundSeeds);
+            Ct = reshape(Ct, size(obj.I, 1), size(obj.I, 2));
         end 
                 
         % non-uniform unary potentials                     
@@ -848,11 +852,11 @@ classdef Segmenter
         %        
                 
         % uniform, without fg seed
-        function [hyp_conns, types] = generate_subframes_growth_hyps(obj)
+        function [Cs, Ct] = generate_subframes_growth_hyps(obj)
             [x,y] = cartprod_mex((-obj.subframe_dims(1)/2:obj.subframe_dims(1)/2)', (-obj.subframe_dims(2)/2:obj.subframe_dims(2)/2)');
             our_rect = [x y];
             
-            if(isempty(obj.frame_grid_dims)) 
+            if isempty(obj.frame_grid_dims) 
                 obj.frame_grid_dims = [1 1]; % means it's a frame seed, our favorite
                 counter = 1;
                 for frame_kind= {'all', 'all_but_down', 'horiz', 'vert', 'down', 'up'};                    
@@ -866,8 +870,23 @@ classdef Segmenter
             
             hyp_conns = [];
             for i=1:numel(fg_grid_hyp)
-                [hyp_conn, types] = obj.subframe(fg_grid_hyp{i});
-                hyp_conns = [hyp_conns; hyp_conn];
+               allPixels = zeros(size(obj.I, 1)*size(obj.I, 2), 1);
+               allPixels(fg_grid_hyp{i}) = 1;
+               Img = reshape(allPixels, size(obj.I, 1), size(obj.I, 2));
+               Perimeter = bwperim(Img);
+               [ix iy] = find(Perimeter);
+               backgroundSeeds = sub2ind([size(obj.I, 1), size(obj.I, 2)], ix, iy);
+               Ct{i} = obj.compute_unary_values(backgroundSeeds);
+               Ct{i} = reshape(Ct, size(obj.I, 1), size(obj.I, 2));
+
+               left = min(iy);
+               right = max(iy);
+               top = min(ix);
+               bottom = max(ix);
+
+               cy = idivide(left+right, 2);
+               cx = idivide(top+bottom, 2);
+
             end
         end
         

@@ -443,14 +443,9 @@ classdef Dgraph
     end
     
     function obj = set_edges_weights(obj, the_edges, weights)
-        
-      error('should remove sptensor');
-      D = sptensor(obj.D);
-      D(the_edges) = weights;
-      [coords] = find(D);
-      vals = D.vals;
-      obj.D = sparse2(coords(:,1), coords(:,2),vals, size(D,1), size(D,2));
-      %obj.D = sparse(coords(:,1), coords(:,2),vals, size(D,1), size(D,2));
+      for i = 1:size(the_edges, 1)
+          obj.D(the_edges(i, 1), the_edges(i, 2)) = weights(i); 
+      end
     end
     
     function lambda_offsets = compute_lambda_offsets(obj,s,t,lambda_nodes)
@@ -775,13 +770,14 @@ classdef Dgraph
         % there's a problem with the precision
         MULT_FACTOR = 1000;
         obj.D = obj.D*MULT_FACTOR;
-        obj = obj.replace_bigger_or_equal_than(inf_replacement,inf_replacement);
+        obj = obj.replace_bigger_or_equal_than(insf_replacement,inf_replacement);
         
-        [flow, cut] = max_flow(obj.D, s, t);
+        [flow, flowmat, cuts] = graphmaxflow(obj.D, s, t);
+        cut = cut(1, :);
         
         flow = flow/MULT_FACTOR;
-        cut(cut==-1) = 2; % uniform output over different implementations
-        cut = cut - 1;
+        % cut(cut==-1) = 2; % uniform output over different implementations
+        % cut = cut - 1;
       else
         error('no such algorithm implemented, only push_relabel and kolmogorov');
       end      
@@ -807,8 +803,16 @@ classdef Dgraph
             %toc(the_time)
             [cuts,lambdas] = hoch_pseudo_par_mex(obj.D, lambda_edges, lambda_weights, lambda_offsets, s, t, l, u);
         elseif(strcmp(the_alg, 'bin_search'))
-            assert('fix this');
-            cuts = bin_search_par_min_st_cut(obj, s,t, parametric_pars, visualiz);
+            % assert('fix this');
+            lambda_offsets = obj.get_edges_weights(lambda_edges); 
+            parametric_pars = {};
+            parametric_pars.lambda_edges = lambda_edges;
+            parametric_pars.lambda_offsets = lambda_offsets;
+            parametric_pars.lambda_weights = lambda_weights;
+            parametric_pars.l = l;
+            parametric_pars.u = u;
+            parametric_pars.max_or_min = 'min';
+            cuts = bin_search_par_min_st_cut(obj, s,t, parametric_pars);
         else
             error('no such algorithm, only gallo and hochbaum available');
         end

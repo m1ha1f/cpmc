@@ -55,7 +55,8 @@ function [masks, scores] = cpmc(exp_dir, img_name, diversify_const, segm_pars)
         % uses a color-based unary term. GridOfFramesSegmenter is defined
         % inside subframes (rectangular regions of interest), and it's good for smaller objects.       
         % Each will generate and solve different energy functions.
-        segm_pars.segm_methods = {'UniformSegmenter', 'LongRangeSegmenter', 'GridOfFramesSegmenter'};        
+        % segm_pars.segm_methods = {'UniformSegmenter', 'LongRangeSegmenter', 'GridOfFramesSegmenter'};  
+        segm_pars.segm_methods = {'UniformSegmenter'};         
         
         % can set a limit on the number of segments for each kind of
         % Segmenter. The joint set will be filtered in the end.
