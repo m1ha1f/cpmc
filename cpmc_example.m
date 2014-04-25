@@ -13,7 +13,7 @@ function cpmc_example()
     addpath('./external_code/mpi-chi2-v1_5/');        
     
     % create multiple threads (set how many you have)
-    N_THREADS = 8;
+    N_THREADS = 12;
     if(matlabpool('size')~=N_THREADS)
         matlabpool('open', N_THREADS);
     end
