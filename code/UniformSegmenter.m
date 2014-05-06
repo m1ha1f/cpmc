@@ -15,7 +15,7 @@ classdef UniformSegmenter < Segmenter
         function obj = UniformSegmenter(I, img_name)
             obj = obj@Segmenter(I,img_name);
 
-            obj.grid_dims = [6 6];
+            obj.grid_dims = [10 10];
             obj.RECT_DIMS = [40 40]; % [25 25]
             obj.SEED_FRAME_WEIGHT = 1000; % 500
             obj.filter_segments = true;

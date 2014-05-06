@@ -85,7 +85,7 @@ function [masks, scores] = cpmc(exp_dir, img_name, diversify_const, segm_pars)
         % really better not to have more than [1 1].
         % On the other two [5 5] should be fine. We used [6 6] on
         % the VOC2010 challenge.
-        segm_pars.grid_dims = {[5 5], [5 5], [1 1]};  
+        segm_pars.grid_dims = {[25 25], [5 5], [1 1]};  
         
         % The maximum energy for the initial filtering step, for each
         % method. The proper value depends on the sigma value, which is
