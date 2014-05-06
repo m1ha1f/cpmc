@@ -16,17 +16,17 @@ function testCMF()
     width = 20;
     height = 20;
 
-    foregroundSeeds = extractSeeds(I, 220, 150, width, height);
+    foregroundSeeds = extractSeeds(I, 150, 165, width, height);
 
-%     backgroundSeeds = extractSeeds(I, 1, 1, cols, 1);
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, 1, 1, rows)];
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, cols, 1, rows)];
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, rows, 1, cols, 1)];
+    backgroundSeeds = extractSeeds(I, 1, 1, cols, 1);
+    backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, 1, 1, rows)];
+    backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, cols, 1, rows)];
+    backgroundSeeds = [backgroundSeeds; extractSeeds(I, rows, 1, cols, 1)];
 
-    backgroundSeeds = extractSeeds(I, 204, 420, width, height);
-    backgroundSeeds = [backgroundSeeds; extractSeeds(I, 335, 186, width, height)];
-    backgroundSeeds = [backgroundSeeds; extractSeeds(I, 300, 20, width, height)];
-    
+%     backgroundSeeds = extractSeeds(I, 204, 420, width, height);
+%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 335, 186, width, height)];
+%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 300, 20, width, height)];
+%     
     
 %     backgroundSeeds = backgroundSeeds(randsample(size(backgroundSeeds, 1), 25), :);
 
@@ -41,7 +41,7 @@ function testCMF()
 %     penalty = 0.5*ones(rows,cols);
 
     CG = colgrad(I);
-    penalty = 0.1*(CG + 0.1).^-1;
+    penalty = 0.5*(CG + 0.5).^-1;
 
 
 
