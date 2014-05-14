@@ -130,7 +130,7 @@ classdef Segmenter
                 obj.p_hgraph = p_gen.apply(obj.I);
             end
             
-            obj.p_hgraph.values{1} = round(obj.p_hgraph.values{1}*obj.params.CONSTANT);
+%             obj.p_hgraph.values{1} = round(obj.p_hgraph.values{1}*obj.params.CONSTANT);
             obj.Pixels = obj.p_hgraph.nodes;
             
             obj.img_frame = obj.P.generate_img_frame('pixels', 'all', obj.frame_width);            
@@ -235,7 +235,8 @@ classdef Segmenter
             
             %obj.display_subframes();
             if(~isempty(obj.P.hypConn))
-                obj.P = obj.P.solve('classes', obj.Foreground, obj.Background);
+                % obj.P = obj.P.solve('classes', obj.Foreground, obj.Background);
+                obj.P = obj.P.solveInstances('classes', obj.Foreground, obj.Background, obj.p_hgraph.leftTranspose, obj.p_hgraph.rightTranspose, obj.p_hgraph.top, obj.p_hgraph.bottom);
             else
                 return;
             end

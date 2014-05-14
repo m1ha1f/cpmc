@@ -19,6 +19,11 @@ classdef Hgraph
   properties (SetAccess = private, GetAccess = public)
     special_nodes
     nodes
+
+    leftTranspose
+    rightTranspose
+    top
+    bottom
   end % properties
   
   methods
@@ -418,6 +423,13 @@ classdef Hgraph
       sn_ids = obj.nodes(end) + (1:n_special_nodes)';
       obj.nodes = [obj.nodes; sn_ids];
       obj.special_nodes = [obj.special_nodes; sn_ids];
+    end
+
+    function obj = set_pairwise_cost(obj, leftTranspose, rightTranspose, top, bottom)
+      obj.leftTranspose = leftTranspose;
+      obj.rightTranspose = rightTranspose;
+      obj.top = top;
+      obj.bottom = bottom;
     end
     
     function obj = add_edges(obj, ids,values)

@@ -54,22 +54,27 @@ classdef JustSegmGen < HgraphGen
       n_nodes = prod(I_sz);
       hgraph = Hgraph(n_nodes);
             
-      if(strcmp(obj.local_dist_type,'color'))
-        [ids, val] = obj.extractor.pairwise_diff_aff(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, bbox);
-      elseif(strcmp(obj.local_dist_type,'pb'))
-        [ids, val] = obj.extractor.pairwise_pb_aff(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, tmp_filename, bbox);   
-      elseif(strcmp(obj.local_dist_type,'pb_fat'))
-        [ids, val] = obj.extractor.pairwise_pb_aff(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, tmp_filename, bbox, true);           
-      end
+      % if(strcmp(obj.local_dist_type,'color'))
+      %   [ids, val] = obj.extractor.pairwise_diff_aff(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, bbox);
+      % elseif(strcmp(obj.local_dist_type,'pb'))
+      %   [ids, val] = obj.extractor.pairwise_pb_aff(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, tmp_filename, bbox);   
+      % elseif(strcmp(obj.local_dist_type,'pb_fat'))
+      %   [ids, val] = obj.extractor.pairwise_pb_aff(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, tmp_filename, bbox, true);           
+      % end
+
+      [leftTranspose, rightTranspose, top, bottom]= obj.extractor.pairwise_pb_aff_matrices(Img,obj.CONTRAST_SENSITIVE_WEIGHT,obj.PAIRWISE_OFFSET,obj.CONTRAST_SENSITIVE_SIGMA, tmp_filename, bbox);
       
-      if(obj.DEBUG_MODE)
-        %hist(val,20);
-        %pause;
-      end
+      hgraph = hgraph.set_pairwise_cost(leftTranspose, rightTranspose, top, bottom);
+
+
+      % if(obj.DEBUG_MODE)
+      %   %hist(val,20);
+      %   %pause;
+      % end
       
-      if (~isempty(val>0))
-        hgraph = hgraph.add_edges(ids, val);
-      end      
+      % if (~isempty(val>0))
+      %   hgraph = hgraph.add_edges(ids, val);
+      % end      
     end       
   end  % methods
 

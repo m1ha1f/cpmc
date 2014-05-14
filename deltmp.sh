@@ -1,1 +1,2 @@
-/MySegmentsMat/* & rm -rf data/MyMeasurements/*
+rm -rf data/MySegmentsMat/* & rm -rf data/MyMeasurements/*
+

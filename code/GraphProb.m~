@@ -195,34 +195,26 @@ classdef GraphProb
                     for j=1:size(hConn,2)
                         if(~isempty(hConn{j}))
                             the_hConn = hConn{j};
-                            tmp = sparse(rows, cols);
-                            tmp(the_hConn.nodes_a) = the_hConn.edge_strength;
                             if the_hConn.nodes_b == s
-                                Cs = Cs + tmp;
+                                tmp = 
+                                Cs(the_hConn.nodes_a) = the_hConn.edge_strength;
                             else
-                                Ct = Ct + tmp;
+                                Ct(the_hConn.nodes_a) = the_hConn.edge_strength;
                             end             
                         end
                     end
-                    CTerminal = single(Ct-Cs);
-                    CTerminal(find(CTerminal == inf)) = 30;
+                    CTerminal = single(Cs-Ct);
 
-                    lower_bound = -10;
-                    upper_bound = 10;
-                    K = 20;
-                    for k = 1:20
-                        lambda  = lower_bound + (upper_bound-lower_bound)/(K-1)*k;
-                        ct = CTerminal + lambda;
+                    r = nppiGraphcut_32f8u_mex(cols, rows, CTerminal,  leftTransposed, rightTransposed, top, bottom);
+                    r = r (:);
 
-                        r = nppiGraphcut_32f8u_mex(cols, rows, ct,  leftTransposed, rightTransposed, top, bottom);
-                        r = r (:);
-
-                        if (numel(unique(r)) > 1)
-                            disp(sum(r==0));
-                            disp(sum(r==1));
-                            partitions{i} = r;
-                        end
+                    if (sum(r ==0) ~= rows*cols)
+                        disp(sum(r==0));
+                        disp(sum(r==1));
                     end
+
+
+                    partitions{i} = r;
                 end
             end
             obj.solution = ~cell2mat(partitions); % 1 is sink!
@@ -235,8 +227,7 @@ classdef GraphProb
                         
             disp('solving...');
             
-%             parfor(i=1:max(1,size(obj.hypConn,1)), 8)
-            for i = 1:size(obj.hypConn, 1) 
+            parfor(i=1:max(1,size(obj.hypConn,1)), 8)
             %parfor i=1:max(1,size(obj.hypConn,1))
                 %i
                 hyp_prob_dgraph = obj.prob_dgraph;

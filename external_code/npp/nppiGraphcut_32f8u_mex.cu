@@ -43,7 +43,7 @@ int printfNPPinfo(int cudaVerMajor, int cudaVerMinor)
     fprintf(stderr, "Getting npp version\n");
     const NppLibraryVersion *libVer   = nppGetLibVersion();
 
-    printf("NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor, libVer->build);
+    fprintf(stderr, "NPP Library Version %d.%d.%d\n", libVer->major, libVer->minor, libVer->build);
 
     int driverVersion, runtimeVersion;
     cudaDriverGetVersion(&driverVersion);
@@ -161,9 +161,19 @@ Npp32f *pRightTransposed, Npp32f *pTop, Npp32f *pBottom, Npp8u *labels)
 }
 
 template<typename T>
-void transpose(T* mat, int rows, int cols)
+T *transpose(T* mat, int rows, int cols)
 {
-    Npp32f* tmp = new Npp32f[rows*cols];
+    T* tmp = new T[rows*cols];
+    for (int i = 0; i < rows; ++i)
+        for (int j = 0; j < cols; ++j)
+            tmp[i*cols+j] = mat[j*rows+i];
+    return tmp;
+}
+
+template<typename T>
+void transposeInPlace(T* mat, int rows, int cols)
+{
+    T* tmp = new T[rows*cols];
     for (int i = 0; i < rows; ++i)
         for (int j = 0; j < cols; ++j)
             tmp[i*cols+j] = mat[j*rows+i];
@@ -177,32 +187,39 @@ extern void mexFunction(int iNbOut, mxArray *pmxOut[],
     int width = (int)mxGetScalar(pmxIn[0]);
     int height = (int)mxGetScalar(pmxIn[1]);
 
-    Npp32f *pTerminals = (Npp32f*)mxGetData(pmxIn[2]);
-    transpose(pTerminals, width, height);
+    Npp32f *pTerminals = transpose((Npp32f*)mxGetData(pmxIn[2]), height, width);
 
-    Npp32f* pLeftTransposed = (Npp32f*)mxGetData(pmxIn[3]);
-    transpose(pLeftTransposed, width, height);
+    Npp32f* pLeftTransposed = transpose((Npp32f*)mxGetData(pmxIn[3]), width, height);
     for (int j = 0; j < height; ++j)
         if (pLeftTransposed[j] != 0)
             throw std::invalid_argument("pLeftTransposed[0][*] must be 0");
 
-    Npp32f* pRightTransposed = (Npp32f*)mxGetData(pmxIn[4]);
-    transpose(pRightTransposed, width, height);
+    Npp32f* pRightTransposed = transpose((Npp32f*)mxGetData(pmxIn[4]), width, height);
     for (int j = 0; j < height; ++j)
         if (pRightTransposed[(width-1)*height + j] != 0)
             throw std::invalid_argument("pRightTransposed[width-1][*] must be 0");  
 
     fprintf(stderr, "Assertions passed\n");  
 
-    Npp32f* pTop = (Npp32f*)mxGetData(pmxIn[5]);
-    transpose(pTop, height, width);
+    Npp32f* pTop = transpose((Npp32f*)mxGetData(pmxIn[5]), height, width);
+    for (int j = 0 ; j < width; ++j)
+        if (pTop[j] != 0)
+            throw std::invalid_argument("pTop[0][*] must be 0");
 
-    Npp32f* pBottom = (Npp32f*)mxGetData(pmxIn[6]);
-    transpose(pBottom, height, width);
+    Npp32f* pBottom = transpose((Npp32f*)mxGetData(pmxIn[6]), height, width);
+    for (int j = 0; j < width; ++j)
+        if (pBottom[width*(height-1) + j] != 0)
+            throw std::invalid_argument("pBottom[height-1][*] must be 0"); 
 
     pmxOut[0] = mxCreateNumericMatrix(height, width, mxINT8_CLASS, mxREAL);
     Npp8u *outmat = (Npp8u*)mxGetData(pmxOut[0]);
 
     graphCut(width, height, pTerminals, pLeftTransposed, pRightTransposed, pTop, pBottom, outmat);
-    transpose(outmat, height, width);
+    transposeInPlace(outmat, height, width); 
+
+    delete [] pTerminals;
+    delete [] pLeftTransposed;
+    delete [] pRightTransposed;
+    delete [] pTop;
+    delete [] pBottom;
 }
