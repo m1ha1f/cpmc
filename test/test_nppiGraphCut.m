@@ -18,8 +18,8 @@ function test_nppiGraphCut()
     rows = size(I, 1);
     cols = size(I, 2);
 
-    width = 10;
-    height = 10;
+    width = 5;
+    height = 5;
 
     foregroundSeeds = extractSeeds(I, 170, 150, width, height);
 
@@ -38,46 +38,48 @@ function test_nppiGraphCut()
 
     Cs = computeCapacity(I, foregroundSeeds);
     Ct = computeCapacity(I, backgroundSeeds);
-%     f = 0.12;
-%     b = 0.75;
-%     
-%     Cs = abs(I - f);
-%     Ct = abs(I - b);
+
+%       rows = 10;
+%       cols = 15;
+% 
+%       Cs = zeros(rows, cols);
+%       Cs(3:7, 3:7) = 1;
+%       
+%       Ct = zeros(rows, cols);
+%       Ct(:, 1) = 1;
+%       Ct(:, cols) = 1;
+      
 
 %     penalty = 0.5*ones(rows,cols);
 
-    CG = colgrad(I);  
-    penalty = 4.0*(CG*1.0 + 1).^-1;
-
-%     BW = edge(rgb2gray(I),'canny');
-%     penalty = 3.2*(BW*1.0 + 0.6).^-1;
-%     penalty = (BW+1)*2.5;
+%     CG = colgrad(I);  
+%     penalty = 4.0*(CG*1.0 + 1).^-1;
 
 
-    varParas = [rows; cols; 300; 1e-4; 0.3; 0.16];
-%     para 0,1 - rows, cols of the given image
-%     para 2 - the maximum number of iterations
-%     para 3 - the error bound for convergence
-%     para 4 - cc for the step-size of augmented Lagrangian method
-%     para 5 - the step-size for the graident-projection of p
 
-%     [uu, erriter,num,tt] = CMF_GPU(single(penalty), single(Cs), single(Ct), single(varParas));
-    CLT = single(0.5*ones(cols, rows));
-    CLT(1, :) = 0;
-    CRT = single(0.5*ones(cols, rows));
-    CRT(cols, :) = 0;
-    CT = single(0.5*zeros(cols, rows));
-    CT(:, 1) = 0;
-    CB = single(0.5*zeros(cols, rows));
-    CB(:, height) = 0;
-    
+%     CLT = single(0.5*ones(cols, rows));
+%     CLT(1, :) = 0;
+%     CRT = single(0.5*ones(cols, rows));
+%     CRT(cols, :) = 0;
+%     CT = single(0.5*ones(rows, cols));
+%     CT(1, :) = 0;
+%     CB = single(0.5*ones(rows, cols));
+%     CB(rows, :) = 0;
+
+    CLT = single(zeros(cols, rows));
+    CRT = single(zeros(cols, rows));
+    CT = single(zeros(rows, cols));
+    CB = single(zeros(rows, cols));
+
     CCD = single(Cs-Ct);
     
     labels = nppiGraphcut_32f8u_mex(cols, rows, CCD, CLT, CRT, CT, CB); 
+    
+    unique(labels)
 
 %     uu = im2bw(uu, level);
     
-    figure, imagesc(label);
+    figure, imagesc(labels);
 
 end
 

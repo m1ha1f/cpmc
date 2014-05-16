@@ -143,11 +143,10 @@ Npp32f *pRightTransposed, Npp32f *pTop, Npp32f *pBottom, Npp8u *labels)
     // and copy the result to host
     oDeviceAlpha.copyTo(oHostAlpha.data(), oHostAlpha.pitch());
 
-    labels = new unsigned char[width*height];
     for (int i = 0; i < height; ++i)
         for (int j = 0; j < width; ++j)
-            labels[i*width+j] = *oHostAlpha.data(i, j);
-
+            labels[i*width+j] = *oHostAlpha.data(j, i) ? 1:0;
+           
     checkCudaErrors(cudaFree(d_terminals));
     checkCudaErrors(cudaFree(d_top));
     checkCudaErrors(cudaFree(d_bottom));
@@ -174,9 +173,10 @@ template<typename T>
 void transposeInPlace(T* mat, int rows, int cols)
 {
     T* tmp = new T[rows*cols];
-    for (int i = 0; i < rows; ++i)
-        for (int j = 0; j < cols; ++j)
-            tmp[i*cols+j] = mat[j*rows+i];
+    int k = 0;
+    for (int j = 0; j < cols; ++j)
+        for (int i = 0; i < rows; ++i)
+            tmp[k++] = mat[i*cols+j];
     memcpy(mat, tmp, sizeof(T)*rows*cols);
     delete [] tmp;
 }
@@ -211,10 +211,11 @@ extern void mexFunction(int iNbOut, mxArray *pmxOut[],
         if (pBottom[width*(height-1) + j] != 0)
             throw std::invalid_argument("pBottom[height-1][*] must be 0"); 
 
-    pmxOut[0] = mxCreateNumericMatrix(height, width, mxINT8_CLASS, mxREAL);
-    Npp8u *outmat = (Npp8u*)mxGetData(pmxOut[0]);
+    pmxOut[0] = mxCreateNumericMatrix(height, width, mxUINT8_CLASS, mxREAL);
+    Npp8u *outmat = (Npp8u*)mxGetPr(pmxOut[0]);
 
     graphCut(width, height, pTerminals, pLeftTransposed, pRightTransposed, pTop, pBottom, outmat);
+
     transposeInPlace(outmat, height, width); 
 
     delete [] pTerminals;

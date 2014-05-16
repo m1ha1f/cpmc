@@ -175,7 +175,9 @@ classdef GraphProb
         end
 
         function [obj] = solveInstances(obj, type, var_a, var_b, leftTransposed, rightTransposed, top, bottom)
-            partitions = cell(1, max(1,size(obj.hypConn,1)));
+            K = 12;
+            L = 3;
+            partitions = cell(1, max(1,size(obj.hypConn,1))*K*L);
             ids = double(obj.mapVars(type));
 
             s = ids(var_a);
@@ -205,26 +207,38 @@ classdef GraphProb
                         end
                     end
                     CTerminal = single(Ct-Cs);
-                    CTerminal(find(CTerminal == inf)) = 30;
+%                     CTerminal(find(CTerminal == inf)) = 30;
 
-                    lower_bound = -10;
-                    upper_bound = 10;
-                    K = 20;
-                    for k = 1:20
-                        lambda  = lower_bound + (upper_bound-lower_bound)/(K-1)*k;
-                        ct = CTerminal + lambda;
+                    lower_bound = -2;
+                    upper_bound = 2;
+                    
+                    for k = 1:K
+                        for l = 1:L
+                            lambda  = lower_bound + (upper_bound-lower_bound)/(K-1)*k;
+                            ct = CTerminal + lambda;
+                            
+                            lt = leftTransposed*l*0.5;
+                            rt = rightTransposed*l*0.5;
+                            tp = top*l*0.5;
+                            bt = bottom*l*0.5;
 
-                        r = nppiGraphcut_32f8u_mex(cols, rows, ct,  leftTransposed, rightTransposed, top, bottom);
-                        r = r (:);
+                            r = nppiGraphcut_32f8u_mex(cols, rows, ct,  lt, rt, tp, bt);
+                            r = r (:);
 
-                        if (numel(unique(r)) > 1)
-                            disp(sum(r==0));
-                            disp(sum(r==1));
-                            partitions{i} = r;
+                            if (numel(unique(r)) > 1)
+%                                 disp('--------------------------------------')
+%                                 disp(i)
+%                                 disp(k)
+%                                 disp(l)
+%                                 disp(sum(r==0));
+%                                 disp(sum(r==1));
+                                partitions{(i-1)*K*L+(k-1)*L +l} = r;
+                            end
                         end
                     end
                 end
             end
+            partitions = partitions(~cellfun('isempty', partitions));
             obj.solution = ~cell2mat(partitions); % 1 is sink!
         end
         

@@ -247,7 +247,7 @@ classdef Segmenter
 
             t_en = tic();
             S = S.compute_energies();
-            t_energy = toc(t_en);
+            t_energy = toc(t_en)
             
             min_n_segments = 5;
             
