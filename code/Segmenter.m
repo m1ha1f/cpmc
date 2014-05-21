@@ -236,7 +236,9 @@ classdef Segmenter
             %obj.display_subframes();
             if(~isempty(obj.P.hypConn))
                 % obj.P = obj.P.solve('classes', obj.Foreground, obj.Background);
+                t_runFlowTotal = tic();
                 obj.P = obj.P.solveInstances('classes', obj.Foreground, obj.Background, obj.p_hgraph.leftTranspose, obj.p_hgraph.rightTranspose, obj.p_hgraph.top, obj.p_hgraph.bottom);
+                t_runFlowTotal = toc(t_runFlowTotal)
             else
                 return;
             end

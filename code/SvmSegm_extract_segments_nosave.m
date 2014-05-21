@@ -119,7 +119,7 @@ function [the_masks, the_additional] = SvmSegm_extract_segments_nosave(img_dir, 
             S = SegmentProcessor([], masks, I, pb_file, MIN_PIXELS, no_separate, resize);
             t_en = tic();
             S = S.compute_energies();
-            t_energy = toc(t_en);
+            t_energy = toc(t_en)
             t_diss = tic();
             n_before = size(S.segments,2);
             

@@ -175,9 +175,27 @@ classdef GraphProb
         end
 
         function [obj] = solveInstances(obj, type, var_a, var_b, leftTransposed, rightTransposed, top, bottom)
-            K = 12;
-            L = 3;
-            partitions = cell(1, max(1,size(obj.hypConn,1))*K*L);
+            SCALE_CONSTANT = 1000;
+            BIG_VALUE = 214750000;
+
+            leftTransposed = leftTransposed * SCALE_CONSTANT;
+            rightTransposed = rightTransposed * SCALE_CONSTANT;
+            top = top * SCALE_CONSTANT;
+            bottom = bottom * SCALE_CONSTANT;
+
+            K = 20;
+
+            lower_bound = 1/SCALE_CONSTANT;
+            upper_bound = obj.upper_bp;
+
+            lambda_range =  [logspace(log10(lower_bound), log10(upper_bound), K)];
+            lambda_range(lambda_range > (upper_bound+eps)) = [];
+            lambda_range(lambda_range < lower_bound) = [];
+            lambda_range = [0 lambda_range];
+            lambda_range = lambda_range*SCALE_CONSTANT;
+            K = numel(lambda_range);
+            
+            obj.solution = [];
             ids = double(obj.mapVars(type));
 
             s = ids(var_a);
@@ -185,7 +203,22 @@ classdef GraphProb
             rows = size(obj.I, 1);
             cols = size(obj.I, 2);
 
+            % parw = [];
+            % for i = 1:size(obj.hypConn, 1)
+            %     for j = 1:size(obj.hypConn, 2)
+            %         if ~isempty(obj.hypConn{i, j})
+            %             parw = [parw obj.hypConn{i,j}.parametric_weight];
+            %         end
+            %     end
+            % end
+            % parw = unique(parw);
+            % disp(parw)
+
 %             parfor(i=1:max(1,size(obj.hypConn,1)), 12)
+
+            tgraphcut = 0;
+            seedNo = size(obj.hypConn, 1)
+
             for i = 1:size(obj.hypConn, 1)
                 hyp_prob_dgraph = obj.prob_dgraph;
                 hyp_parametric_dgraph = obj.parametric_dgraph;
@@ -194,6 +227,8 @@ classdef GraphProb
                     vars1 = []; vars2 = []; val = []; parametric_w= [];
                     Cs = zeros(rows, cols);
                     Ct = zeros(rows, cols);
+                    SEdges = [];
+                    TEdges = [];
                     for j=1:size(hConn,2)
                         if(~isempty(hConn{j}))
                             the_hConn = hConn{j};
@@ -201,45 +236,38 @@ classdef GraphProb
                             tmp(the_hConn.nodes_a) = the_hConn.edge_strength;
                             if the_hConn.nodes_b == s
                                 Cs = Cs + tmp;
+                                if the_hConn.parametric_weight
+                                    SEdges = [SEdges; the_hConn.nodes_a];
+                                end
                             else
                                 Ct = Ct + tmp;
+                                if the_hConn.parametric_weight
+                                    TEdges = [TEdges; the_hConn.nodes_a];
+                                end
                             end             
                         end
                     end
+
+                    SEdges = unique(SEdges);
+                    TEdges = unique(TEdges);
+
+                    Cs = Cs*SCALE_CONSTANT;
+                    Ct = Ct*SCALE_CONSTANT;
+                    Cs(Cs > BIG_VALUE) = BIG_VALUE;
+                    Ct(Ct > BIG_VALUE) = BIG_VALUE;
+
                     CTerminal = single(Ct-Cs);
-%                     CTerminal(find(CTerminal == inf)) = 30;
-
-                    lower_bound = -2;
-                    upper_bound = 2;
-                    
-                    for k = 1:K
-                        for l = 1:L
-                            lambda  = lower_bound + (upper_bound-lower_bound)/(K-1)*k;
-                            ct = CTerminal + lambda;
-                            
-                            lt = leftTransposed*l*0.5;
-                            rt = rightTransposed*l*0.5;
-                            tp = top*l*0.5;
-                            bt = bottom*l*0.5;
-
-                            r = nppiGraphcut_32f8u_mex(cols, rows, ct,  lt, rt, tp, bt);
-                            r = r (:);
-
-                            if (numel(unique(r)) > 1)
-%                                 disp('--------------------------------------')
-%                                 disp(i)
-%                                 disp(k)
-%                                 disp(l)
-%                                 disp(sum(r==0));
-%                                 disp(sum(r==1));
-                                partitions{(i-1)*K*L+(k-1)*L +l} = r;
-                            end
-                        end
-                    end
+                    t0 = tic();
+                    out = nppiGraphcut_32f8u_multi_mex(cols, rows, CTerminal, leftTransposed, rightTransposed, top, bottom, ...
+                        K, lambda_range, numel(SEdges), SEdges, numel(TEdges), TEdges);
+                    tgraphcut = tgraphcut + toc(t0);
+                    out = out(:, any(out));
+                    out = out(:, ~all(out));
+                    obj.solution = [obj.solution ~out];
                 end
             end
-            partitions = partitions(~cellfun('isempty', partitions));
-            obj.solution = ~cell2mat(partitions); % 1 is sink!
+
+            fprintf('graph cut avg time: %f\n', tgraphcut/seedNo)
         end
         
         function [obj] = solve(obj, type, var_a, var_b)   

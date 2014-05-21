@@ -50,27 +50,29 @@ function test_nppiGraphCut()
 %       Ct(:, cols) = 1;
       
 
-%     penalty = 0.5*ones(rows,cols);
+    CG = colgrad(I);  
 
-%     CG = colgrad(I);  
-%     penalty = 4.0*(CG*1.0 + 1).^-1;
+    leftTranspose = CG(1: nrows, 2:ncols) - CG(1:nrows, 1:ncols-1);
+    leftTranspose = abs(leftTranspose);
+    leftTranspose = obj.normVal(leftTranspose, CONTRAST_SENSITIVE_WEIGHT, POTTS_WEIGHT, SIGMA);
+    leftTranspose = [zeros(nrows, 1) leftTranspose];
+    leftTranspose = leftTranspose';
 
+    rightTranspose = CG(1:nrows, 1:ncols-1) - CG(1:nrows, 2:ncols);
+    rightTranspose = abs(rightTranspose);
+    rightTranspose = obj.normVal(rightTranspose, CONTRAST_SENSITIVE_WEIGHT, POTTS_WEIGHT, SIGMA);
+    rightTranspose = [rightTranspose zeros(nrows, 1)];
+    rightTranspose = rightTranspose';
 
+    top = CG(2:nrows, :) - CG(1:nrows-1, :);
+    top = abs(top);
+    top = obj.normVal(top, CONTRAST_SENSITIVE_WEIGHT, POTTS_WEIGHT, SIGMA);
+    top = [zeros(1, ncols); top];
 
-%     CLT = single(0.5*ones(cols, rows));
-%     CLT(1, :) = 0;
-%     CRT = single(0.5*ones(cols, rows));
-%     CRT(cols, :) = 0;
-%     CT = single(0.5*ones(rows, cols));
-%     CT(1, :) = 0;
-%     CB = single(0.5*ones(rows, cols));
-%     CB(rows, :) = 0;
-
-    CLT = single(zeros(cols, rows));
-    CRT = single(zeros(cols, rows));
-    CT = single(zeros(rows, cols));
-    CB = single(zeros(rows, cols));
-
+    bottom = CG(1:nrows-1, :) - CG(2:nrows, :);
+    bottom = abs(bottom);
+    bottom = obj.normVal(bottom, CONTRAST_SENSITIVE_WEIGHT, POTTS_WEIGHT, SIGMA);
+    bottom = [bottom; zeros(1, ncols)];
     CCD = single(Cs-Ct);
     
     labels = nppiGraphcut_32f8u_mex(cols, rows, CCD, CLT, CRT, CT, CB); 
