@@ -18,8 +18,8 @@ function test_nppiGraphCut()
     rows = size(I, 1);
     cols = size(I, 2);
 
-    width = 15;
-    height = 15;
+    width = 5;
+    height = 5;
     
     prow = 170;
     pcol = 150;
@@ -36,8 +36,8 @@ function test_nppiGraphCut()
     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, cols, 1, rows)];
 %     backgroundSeeds = [backgroundSeeds; extractSeeds(I, rows, 1, cols, 1)];
 
-    backgroundids = sub2ind([rows cols], 1:rows, ones(1, rows));
-    backgroundids = [backgroundids sub2ind([rows cols], 1:rows, ones(1, rows)*cols)];
+    backgroundids = sub2ind([rows cols], 1:rows, ones(rows, 1));
+    background
 
 %     backgroundSeeds = extractSeeds(I, 204, 420, width, height);
 %     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 335, 186, width, height)];
@@ -91,11 +91,9 @@ function test_nppiGraphCut()
     CTerminals = single(Cs-Ct);
     
 
-    for i = -2:2
+    for i = 0:10
         ct = CTerminals;
-        lambda = i/10;
-        ct(seedids) = ct(seedids) + lambda;
-        ct(backgroundids) = ct(backgroundids) - lambda;
+        ct(seedids) = ct(seedids) + i;
         labels = nppiGraphcut_32f8u_mex(cols, rows, ct, leftTranspose, rightTranspose, top, bottom); 
         figure, imagesc(labels);
     end

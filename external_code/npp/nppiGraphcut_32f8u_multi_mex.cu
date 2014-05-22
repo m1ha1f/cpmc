@@ -217,7 +217,6 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
 
         for (int j = 0; j < width; ++j)
             for (int i = 0; i < height; ++i)
-            
                 labels[iout++] = *oHostAlpha.data(j, i) ? 1:0;
     }
     cudaEventRecord(stop,0);
@@ -229,6 +228,8 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
 
     delete [] sourceRows;
     delete [] sourceCols;
+    delete [] sinkRows;
+    delete [] sinkCols;
            
     checkCudaErrors(cudaFree(d_terminals));
     checkCudaErrors(cudaFree(d_top));
@@ -238,6 +239,8 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
     checkCudaErrors(cudaFree(pBuffer));
     checkCudaErrors(cudaFree(d_sourceRows));
     checkCudaErrors(cudaFree(d_sourceCols));
+    checkCudaErrors(cudaFree(d_sinkRows));
+    checkCudaErrors(cudaFree(d_sinkCols));
     nppiGraphcutFree(pGraphcutState);
 
     checkCudaErrors(cudaEventDestroy(start));
