@@ -1,7 +1,8 @@
 function test_nppiGraphCut()
+    addpath('../code');
     addpath('../external_code');
     addpath('../external_code/npp');
-   
+    addpath('../external_code/paraFmex');
     addpath('../external_code/vlfeats/toolbox/kmeans/');
     addpath('../external_code/vlfeats/toolbox/mex/mexa64/');
     addpath('../external_code/vlfeats/toolbox/mex/mexglx/');
@@ -27,8 +28,8 @@ function test_nppiGraphCut()
     foregroundSeeds = extractSeeds(I, prow, pcol, width, height);
     
     [ix iy] = meshgrid(1:height, 1:width);
-    seedids = [ix(:)+prow-1 iy(:)+pcol-1];
-    seedids = sub2ind([rows cols], seedids(:, 1), seedids(:, 2));
+    foregroundids = [ix(:)+prow-1 iy(:)+pcol-1];
+    foregroundids = sub2ind([rows cols], foregroundids(:, 1), foregroundids(:, 2));
 
     backgroundSeeds = [];
 %     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, 1, cols, 1)];
@@ -91,19 +92,70 @@ function test_nppiGraphCut()
     CTerminals = single(Cs-Ct);
     
 
-    for i = -2:2
+    for i = 0
         ct = CTerminals;
         lambda = i/10;
-        ct(seedids) = ct(seedids) + lambda;
+        ct(foregroundids) = ct(foregroundids) + lambda;
         ct(backgroundids) = ct(backgroundids) - lambda;
         labels = nppiGraphcut_32f8u_mex(cols, rows, ct, leftTranspose, rightTranspose, top, bottom); 
         figure, imagesc(labels);
     end
 
-    unique(labels)
+    N = sparse(rows*cols+2, rows*cols+2);
+    s = rows*cols+1;
+    t = rows*cols+2;
 
-%     uu = im2bw(uu, level);
+    Srows = [];
+    Scols = [];
+    Svals = [];
+    for i = 1 : rows
+        for j = 1: cols
+            ci = sub2ind([rows cols], i, j);
+            if i > 1
+                ct = sub2ind([rows cols], i-1, j);
+%                 N(ci, ct) = top(i, j);
+                Srows = [Srows ci];
+                Scols = [Scols ct];
+                Svals = [Svals top(i, j)];
+            end
+            if i < rows
+                cb = sub2ind([rows cols], i+1, j);
+%                 N(ci, cb) = bottom(i, j);
+                Srows = [Srows ci];
+                Scols = [Scols cb];
+                Svals = [Svals bottom(i, j)];
+            end
+            if j > 1
+                cl = sub2ind([rows cols], i, j-1);
+%                 N(ci, cl) = leftTranspose(j, i);
+                Srows = [Srows ci];
+                Scols = [Scols cl];
+                Svals = [Svals leftTranspose(j, i)];
+            end
+            if j < cols
+                cr = sub2ind([rows cols], i, j+1);
+%                 N(ci, cr) = rightTranspose(j, i);
+                Srows = [Srows ci];
+                Scols = [Scols cr];
+                Svals = [Svals rightTranspose(j, i)];
+            end
+        end
+    end 
     
+    N = sparse(Srows, Scols, double(Svals), rows*cols+2, rows*cols+2);
+
+    lambda_edges = [ones(width*height, 1)*s foregroundids];
+    lambda_edges = [lambda_edges; backgroundids' ones(size(backgroundids, 2), 1)*t];
+
+    lambda_weights = ones(size(lambda_edges, 1), 1);
+    lambda_offsets = double([lambda_offsets; Ct(backgroundids)']);
+
+    [cuts, lambdas] = hoch_pseudo_par_mex(N, lambda_edges, lambda_weights, lambda_offsets, s, t, -1, 150, 20);
+    
+    for i = 1:size(cuts, 2)
+        img = reshape(cuts(1:rows*cols, i), rows, cols);
+        figure, imagesc(img);
+    end
     
 
 end

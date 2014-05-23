@@ -217,6 +217,7 @@ classdef GraphProb
 %             parfor(i=1:max(1,size(obj.hypConn,1)), 12)
 
             tgraphcut = 0;
+            tmaxcut = 0;
             seedNo = size(obj.hypConn, 1)
 
             for i = 1:size(obj.hypConn, 1)
@@ -260,14 +261,17 @@ classdef GraphProb
                     t0 = tic();
                     out = nppiGraphcut_32f8u_multi_mex(cols, rows, CTerminal, leftTransposed, rightTransposed, top, bottom, ...
                         K, lambda_range, numel(SEdges), SEdges, numel(TEdges), TEdges);
-                    tgraphcut = tgraphcut + toc(t0);
+                    tnow = toc(t0);
+                    tgraphcut = tgraphcut + tnow;
+                    tmaxcut = max(tmaxcut, tnow);
                     out = out(:, any(out));
                     out = out(:, ~all(out));
                     obj.solution = [obj.solution ~out];
                 end
             end
 
-            fprintf('graph cut avg time: %f\n', tgraphcut/seedNo)
+            fprintf('graph cut avg time: %f\n', tgraphcut/seedNo);
+            fprintf('graph cut max time: %f\n', tmaxcut);
         end
         
         function [obj] = solve(obj, type, var_a, var_b)   

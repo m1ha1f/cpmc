@@ -13,6 +13,8 @@ function cpmc_example()
     addpath('./external_code/mpi-chi2-v1_5/'); 
     addpath('./external_code/npp');
     
+    unix('bash deltmp.sh');
+    
     % create multiple threads (set how many you have)
     N_THREADS = 12;
     if(matlabpool('size')~=N_THREADS)

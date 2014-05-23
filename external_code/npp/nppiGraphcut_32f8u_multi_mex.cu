@@ -197,7 +197,7 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
     int iout = 0;
     for (int k = 0; k < nLambdas; ++k)
     {
-        Npp32f lambda = k > 0 ? lambdas[k]-lambdas[k-1] : lambdas[0];
+        Npp32f lambda = (k > 0) ? (lambdas[k]-lambdas[k-1]) : lambdas[0];
 
         //update d_terminals
         updateSourceCapacity<<<nSourceVertices, 1>>>(d_terminals, step, lambda, nSourceVertices, d_sourceRows, d_sourceCols);
