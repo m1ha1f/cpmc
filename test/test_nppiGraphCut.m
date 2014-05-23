@@ -139,6 +139,14 @@ function test_nppiGraphCut()
                 Scols = [Scols cr];
                 Svals = [Svals rightTranspose(j, i)];
             end
+            
+            Srows = [Srows s];
+            Scols = [Scols ci];
+            Svals = [Svals Cs(i, j)];
+            
+            Srows = [Srows ci];
+            Scols = [Scols t];
+            Svals = [Svals Ct(i, j)];
         end
     end 
     
@@ -148,6 +156,7 @@ function test_nppiGraphCut()
     lambda_edges = [lambda_edges; backgroundids' ones(size(backgroundids, 2), 1)*t];
 
     lambda_weights = ones(size(lambda_edges, 1), 1);
+    lambda_offsets = Cs(foregroundids);
     lambda_offsets = double([lambda_offsets; Ct(backgroundids)']);
 
     [cuts, lambdas] = hoch_pseudo_par_mex(N, lambda_edges, lambda_weights, lambda_offsets, s, t, -1, 150, 20);
