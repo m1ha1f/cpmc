@@ -12,7 +12,7 @@ function [C] = computeCapacity(I, seeds)
 %         C = C + Cnow;
     end
 
-    C = (C+0.5).^-1;
+    C = (C+0.1).^-1;
     
 %     C = C / numel(seeds);
 end

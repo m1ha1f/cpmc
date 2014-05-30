@@ -183,6 +183,11 @@ classdef GraphProb
             top = top * SCALE_CONSTANT;
             bottom = bottom * SCALE_CONSTANT;
 
+            leftTransposed = int32(round(leftTransposed));
+            rightTransposed = int32(round(rightTransposed));
+            top = int32(round(top));
+            bottom = int32(round(bottom));
+
             K = 20;
 
             lower_bound = 1/SCALE_CONSTANT;
@@ -193,6 +198,10 @@ classdef GraphProb
             lambda_range(lambda_range < lower_bound) = [];
             lambda_range = [0 lambda_range];
             lambda_range = lambda_range*SCALE_CONSTANT;
+
+            lambda_range = int32(round(lambda_range));
+            lambda_range = unique(lambda_range);
+
             K = numel(lambda_range);
             
             obj.solution = [];
@@ -249,24 +258,25 @@ classdef GraphProb
                         end
                     end
 
-                    SEdges = unique(SEdges);
-                    TEdges = unique(TEdges);
+                    SEdges = int32(unique(SEdges))';
+                    TEdges = int32(unique(TEdges))';
 
                     Cs = Cs*SCALE_CONSTANT;
                     Ct = Ct*SCALE_CONSTANT;
                     Cs(Cs > BIG_VALUE) = BIG_VALUE;
                     Ct(Ct > BIG_VALUE) = BIG_VALUE;
 
-                    CTerminal = single(Ct-Cs);
+                    CTerminal = int32(round(Cs-Ct));
+
                     t0 = tic();
-                    out = nppiGraphcut_32f8u_multi_mex(cols, rows, CTerminal, leftTransposed, rightTransposed, top, bottom, ...
-                        K, lambda_range, numel(SEdges), SEdges, numel(TEdges), TEdges);
+                    out = nppiGraphcut_32s8u_multi_mex(CTerminal, leftTransposed, rightTransposed, top, bottom, ...
+                        lambda_range, SEdges, TEdges);
                     tnow = toc(t0);
                     tgraphcut = tgraphcut + tnow;
                     tmaxcut = max(tmaxcut, tnow);
                     out = out(:, any(out));
                     out = out(:, ~all(out));
-                    obj.solution = [obj.solution ~out];
+                    obj.solution = [obj.solution out];
                 end
             end
 

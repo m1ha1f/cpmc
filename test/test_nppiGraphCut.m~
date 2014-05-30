@@ -1,64 +1,9 @@
-function test_nppiGraphCut()
-    addpath('../external_code');
-    addpath('../external_code/npp');
-   
-    addpath('../external_code/vlfeats/toolbox/kmeans/');
-    addpath('../external_code/vlfeats/toolbox/mex/mexa64/');
-    addpath('../external_code/vlfeats/toolbox/mex/mexglx/');
-    
-    
-	%img_name = '2010_000238'; % airplane and people   
-    img_name = '2007_009084'; % dogs, motorbike, chairs, people    
-    %img_name = '2010_002868'; % buses   
-    %img_name = '2010_003781'; % cat, bottle, potted plants
-
-    I = imread(['../data/JPEGImages/' img_name '.jpg']);
-    I = single(I)/255;
-
+function [cuts, lambdas] = test_nppiGraphCut(I, K, foregroundids, foregroundSeeds, backgroundids, backgroundSeeds, l, u)
     rows = size(I, 1);
     cols = size(I, 2);
 
-    width = 5;
-    height = 5;
-    
-    prow = 170;
-    pcol = 150;
-
-    foregroundSeeds = extractSeeds(I, prow, pcol, width, height);
-    
-    [ix iy] = meshgrid(1:height, 1:width);
-    seedids = [ix(:)+prow-1 iy(:)+pcol-1];
-    seedids = sub2ind([rows cols], seedids(:, 1), seedids(:, 2));
-
-    backgroundSeeds = [];
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, 1, cols, 1)];
-    backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, 1, 1, rows)];
-    backgroundSeeds = [backgroundSeeds; extractSeeds(I, 1, cols, 1, rows)];
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, rows, 1, cols, 1)];
-
-    backgroundids = sub2ind([rows cols], 1:rows, ones(rows, 1));
-    background
-
-%     backgroundSeeds = extractSeeds(I, 204, 420, width, height);
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 335, 186, width, height)];
-%     backgroundSeeds = [backgroundSeeds; extractSeeds(I, 300, 20, width, height)];
-%     
-    
-%     backgroundSeeds = backgroundSeeds(randsample(size(backgroundSeeds, 1), 25), :);
-
     Cs = computeCapacity(I, foregroundSeeds);
     Ct = computeCapacity(I, backgroundSeeds);
-
-%       rows = 10;
-%       cols = 15;
-% 
-%       Cs = zeros(rows, cols);
-%       Cs(3:7, 3:7) = 1;
-%       
-%       Ct = zeros(rows, cols);
-%       Ct(:, 1) = 1;
-%       Ct(:, cols) = 1;
-      
 
     CG = colgrad(I);  
 
@@ -90,19 +35,28 @@ function test_nppiGraphCut()
     
     CTerminals = single(Cs-Ct);
     
-
-    for i = 0:10
-        ct = CTerminals;
-        ct(seedids) = ct(seedids) + i;
-        labels = nppiGraphcut_32f8u_mex(cols, rows, ct, leftTranspose, rightTranspose, top, bottom); 
-        figure, imagesc(labels);
-    end
-
-    unique(labels)
-
-%     uu = im2bw(uu, level);
+    lambda_range =  [logspace(log10(l), log10(u), K)];
+    lambda_range(lambda_range > (u+eps)) = [];
+    lambda_range(l > lambda_range) = [];
+    lambda_range = [0 lambda_range];
+    % lambda_range = single(lambda_range)/1000;
+    lambda_range = int32(round(lambda_range));
     
-    
+    foregroundids = int32(foregroundids);
+    backgroundids = int32(backgroundids);
 
+    CTerminals = int32(round(CTerminals*1000));
+    leftTranspose = int32(round(leftTranspose*1000));
+    rightTranspose = int32(round(rightTranspose*1000));
+    top = int32(round(top*1000));
+    bottom = int32(round(bottom*1000));
+    
+    lambda_rabge
+    
+    t0 = tic();
+    [cuts, lambdas] = nppiGraphcut_32s8u_multi_mex(cols, rows, CTerminals, leftTranspose, rightTranspose, top, bottom, ...
+        K, lambda_range, numel(foregroundids), foregroundids', numel(backgroundids), backgroundids');
+    t = toc(t0);
+    % fprintf('nppiGraphCut: %f\n', t);
 end
 

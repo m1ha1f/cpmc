@@ -22,9 +22,9 @@ function cpmc_example()
     end
 
     exp_dir = './data/';
-    %img_name = '2010_000238'; % airplane and people   
+%     img_name = '2010_000238'; % airplane and people   
     img_name = '2007_009084'; % dogs, motorbike, chairs, people    
-    %img_name = '2010_002868'; % buses   
+%     img_name = '2010_002868'; % buses   
     %img_name = '2010_003781'; % cat, bottle, potted plants
         
    [masks, scores] = cpmc(exp_dir, img_name);

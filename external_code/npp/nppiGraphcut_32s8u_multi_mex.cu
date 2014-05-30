@@ -56,40 +56,40 @@ int printfNPPinfo(int cudaVerMajor, int cudaVerMinor)
     return bVal;
 }
 
-__global__ void updateSourceCapacity(Npp32f* terminals, int pitch, Npp32f lambda, int nSourceVertices, int* irow, int* icol)
+__global__ void updateSourceCapacity(Npp32s* terminals, int pitch, Npp32s lambda, int nSourceVertices, int* irow, int* icol)
 {
     int i = blockIdx.x;
     if (i < nSourceVertices)
     {
-        Npp32f *p = (Npp32f*)((char*)terminals + irow[i]*pitch) + icol[i];
+        Npp32s *p = (Npp32s*)((char*)terminals + irow[i]*pitch) + icol[i];
         *p -= lambda;
     }
 }
 
-__global__ void updateSinkCapacity(Npp32f* terminals, int pitch, Npp32f lambda, int nSinkVertices, int* irow, int* icol)
+__global__ void updateSinkCapacity(Npp32s* terminals, int pitch, Npp32s lambda, int nSinkVertices, int* irow, int* icol)
 {
     int i = blockIdx.x;
     if (i < nSinkVertices)
     {
-        Npp32f *p = (Npp32f*)((char*)terminals + irow[i]*pitch) + icol[i];
+        Npp32s *p = (Npp32s*)((char*)terminals + irow[i]*pitch) + icol[i];
         *p += lambda;  
     }
 }
 
-__global__ void updateCapacity(Npp32f* terminals, int pitch, Npp32f lambda, int width, int height)
+__global__ void updateCapacity(Npp32s* terminals, int pitch, Npp32s lambda, int width, int height)
 {
     int row = blockIdx.x;
     int col = blockIdx.y;
     if (row < height && col < width)
     {
-        Npp32f *p = (Npp32f*)((char*)terminals + row*pitch) + col;
+        Npp32s *p = (Npp32s*)((char*)terminals + row*pitch) + col;
         *p += lambda;
     }
 }
 
-void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed,
-    Npp32f *pRightTransposed, Npp32f *pTop, Npp32f *pBottom, Npp8u *labels, int &distinctCuts,
-    int nLambdas, Npp32f* lambdas, Npp32f* distinctLambdas, int nSourceVertices, int* sourceVertices, int nSinkVertices, int* sinkVertices)
+void graphCut(int width, int height, Npp32s *pTerminals, Npp32s *pLeftTransposed,
+    Npp32s *pRightTransposed, Npp32s *pTop, Npp32s *pBottom, Npp8u *labels, int &distinctCuts,
+    int nLambdas, Npp32s* lambdas, Npp32s* distinctLambdas, int nSourceVertices, int* sourceVertices, int nSinkVertices, int* sinkVertices)
 {
     // fprintf(stderr, "Starting cuda graphcut computation on image of size %d x %d...\n\n", width, height);
 
@@ -109,9 +109,9 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
     size.height = height;
 
     //Alocate memory on the device
-    Npp32f *d_terminals;
-    Npp32f *d_left_transposed, *d_right_transposed;
-    Npp32f *d_top, *d_bottom;
+    Npp32s *d_terminals;
+    Npp32s *d_left_transposed, *d_right_transposed;
+    Npp32s *d_top, *d_bottom;
     size_t step, transposed_step;
 
     cudaEvent_t copy_start, copy_stop;
@@ -121,18 +121,18 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
     // Compute the graphcut, result is 0 / !=0
     cudaEventRecord(copy_start,0);
     
-    checkCudaErrors(cudaMallocPitch(&d_terminals, &step, width*sizeof(Npp32f), height));
-    checkCudaErrors(cudaMallocPitch(&d_top, &step, width*sizeof(Npp32f), height));
-    checkCudaErrors(cudaMallocPitch(&d_bottom, &step, width*sizeof(Npp32f), height));
-    checkCudaErrors(cudaMallocPitch(&d_left_transposed, &transposed_step, height*sizeof(Npp32f), width));
-    checkCudaErrors(cudaMallocPitch(&d_right_transposed, &transposed_step, height*sizeof(Npp32f), width));
+    checkCudaErrors(cudaMallocPitch(&d_terminals, &step, width*sizeof(Npp32s), height));
+    checkCudaErrors(cudaMallocPitch(&d_top, &step, width*sizeof(Npp32s), height));
+    checkCudaErrors(cudaMallocPitch(&d_bottom, &step, width*sizeof(Npp32s), height));
+    checkCudaErrors(cudaMallocPitch(&d_left_transposed, &transposed_step, height*sizeof(Npp32s), width));
+    checkCudaErrors(cudaMallocPitch(&d_right_transposed, &transposed_step, height*sizeof(Npp32s), width));
 
     //Copy capacities to device
-    checkCudaErrors(cudaMemcpy2D(d_terminals, step, pTerminals, width * sizeof(Npp32f), width*sizeof(Npp32f), height, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy2D(d_top,       step, pTop,       width * sizeof(Npp32f), width*sizeof(Npp32f), height, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy2D(d_bottom,    step, pBottom,    width * sizeof(Npp32f), width*sizeof(Npp32f), height, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy2D(d_left_transposed,  transposed_step, pLeftTransposed, height * sizeof(Npp32f), height*sizeof(Npp32f), width, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy2D(d_right_transposed, transposed_step, pRightTransposed, height * sizeof(Npp32f), height*sizeof(Npp32f), width, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2D(d_terminals, step, pTerminals, width * sizeof(Npp32s), width*sizeof(Npp32s), height, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2D(d_top,       step, pTop,       width * sizeof(Npp32s), width*sizeof(Npp32s), height, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2D(d_bottom,    step, pBottom,    width * sizeof(Npp32s), width*sizeof(Npp32s), height, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2D(d_left_transposed,  transposed_step, pLeftTransposed, height * sizeof(Npp32s), height*sizeof(Npp32s), width, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy2D(d_right_transposed, transposed_step, pRightTransposed, height * sizeof(Npp32s), height*sizeof(Npp32s), width, cudaMemcpyHostToDevice));
 
     // Allocate temp storage for graphcut computation
     Npp8u *pBuffer;
@@ -198,14 +198,14 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
     distinctCuts = 0;
     for (int k = 0; k < nLambdas; ++k)
     {
-        Npp32f lambda = (k > 0) ? (lambdas[k]-lambdas[k-1]) : lambdas[0];
+        Npp32s lambda = (k > 0) ? (lambdas[k]-lambdas[k-1]) : lambdas[0];
 
         //update d_terminals
         updateSourceCapacity<<<nSourceVertices, 1>>>(d_terminals, step, lambda, nSourceVertices, d_sourceRows, d_sourceCols);
         updateSinkCapacity<<<nSinkVertices, 1>>>(d_terminals, step, lambda, nSinkVertices, d_sinkRows, d_sinkCols);
         // updateCapacity<<<height, width>>>(d_terminals, step, lambda, width, height);
 
-        NPP_CHECK_NPP(nppiGraphcut_32f8u(d_terminals, d_left_transposed, d_right_transposed,
+        NPP_CHECK_NPP(nppiGraphcut_32s8u(d_terminals, d_left_transposed, d_right_transposed,
                        d_top, d_bottom, step, transposed_step,
                        size, oDeviceDst.data(), oDeviceDst.pitch(), pGraphcutState));
         // printf("%s\n", cudaGetErrorString(cudaGetLastError()) );
@@ -242,7 +242,7 @@ void graphCut(int width, int height, Npp32f *pTerminals, Npp32f *pLeftTransposed
         }
     }
 
-    printf("Distinct cuts: %d\n", distinctCuts);
+    // printf("Distinct cuts: %d\n", distinctCuts);
     
     cudaEventRecord(stop,0);
     cudaEventSynchronize(stop);
@@ -297,45 +297,44 @@ void transposeInPlace(T* mat, int rows, int cols)
 extern void mexFunction(int iNbOut, mxArray *pmxOut[],
     int iNbIn, const mxArray *pmxIn[])
 {
+    int width = mxGetN(pmxIn[0]);
+    int height = mxGetM(pmxIn[0]);
 
-    int width = (int)mxGetScalar(pmxIn[0]);
-    int height = (int)mxGetScalar(pmxIn[1]);
+    Npp32s *pTerminals = transpose((Npp32s*)mxGetData(pmxIn[0]), height, width);
 
-    Npp32f *pTerminals = transpose((Npp32f*)mxGetData(pmxIn[2]), height, width);
-
-    Npp32f* pLeftTransposed = transpose((Npp32f*)mxGetData(pmxIn[3]), width, height);
+    Npp32s* pLeftTransposed = transpose((Npp32s*)mxGetData(pmxIn[1]), width, height);
     for (int j = 0; j < height; ++j)
         if (pLeftTransposed[j] != 0)
             throw std::invalid_argument("pLeftTransposed[0][*] must be 0");
 
-    Npp32f* pRightTransposed = transpose((Npp32f*)mxGetData(pmxIn[4]), width, height);
+    Npp32s* pRightTransposed = transpose((Npp32s*)mxGetData(pmxIn[2]), width, height);
     for (int j = 0; j < height; ++j)
         if (pRightTransposed[(width-1)*height + j] != 0)
             throw std::invalid_argument("pRightTransposed[width-1][*] must be 0");  
 
-    fprintf(stderr, "Assertions passed\n");  
-
-    Npp32f* pTop = transpose((Npp32f*)mxGetData(pmxIn[5]), height, width);
+    Npp32s* pTop = transpose((Npp32s*)mxGetData(pmxIn[3]), height, width);
     for (int j = 0 ; j < width; ++j)
         if (pTop[j] != 0)
             throw std::invalid_argument("pTop[0][*] must be 0");
 
-    Npp32f* pBottom = transpose((Npp32f*)mxGetData(pmxIn[6]), height, width);
+    Npp32s* pBottom = transpose((Npp32s*)mxGetData(pmxIn[4]), height, width);
     for (int j = 0; j < width; ++j)
         if (pBottom[width*(height-1) + j] != 0)
             throw std::invalid_argument("pBottom[height-1][*] must be 0"); 
 
-    int nLambdas = (int)mxGetScalar(pmxIn[7]);
-    Npp32f* lambdas = (Npp32f*)mxGetData(pmxIn[8]);
+    fprintf(stderr, "Assertions passed\n");  
 
-    int nSourceVertices = (int)mxGetScalar(pmxIn[9]);
-    int* sourceVertices = (int*)mxGetData(pmxIn[10]);
+    int nLambdas = mxGetN(pmxIn[5]);
+    Npp32s* lambdas = (Npp32s*)mxGetData(pmxIn[5]);
 
-    int nSinkVertices = (int)mxGetScalar(pmxIn[11]);
-    int* sinkVertices = (int*)mxGetData(pmxIn[12]);
+    int nSourceVertices = mxGetN(pmxIn[6]);
+    int* sourceVertices = (int*)mxGetData(pmxIn[6]);
+
+    int nSinkVertices = mxGetN(pmxIn[7]);
+    int* sinkVertices = (int*)mxGetData(pmxIn[7]);
 
     Npp8u *outmat = new Npp8u[width*height*nLambdas];
-    Npp32f *distinctLambdas = new Npp32f[nLambdas];
+    Npp32s *distinctLambdas = new Npp32s[nLambdas];
 
     int distinctCuts = 0;
     graphCut(width, height, pTerminals, pLeftTransposed, pRightTransposed, pTop, pBottom, outmat, distinctCuts,
@@ -345,9 +344,9 @@ extern void mexFunction(int iNbOut, mxArray *pmxOut[],
     Npp8u *outp = (Npp8u*)mxGetPr(pmxOut[0]);
     memcpy(outp, outmat, height*width*distinctCuts*sizeof(Npp8u));
 
-    pmxOut[1] = mxCreateNumericMatrix(1, distinctCuts, mxSINGLE_CLASS, mxREAL);
-    Npp32f *lambdap = (Npp32f*)mxGetPr(pmxOut[1]);
-    memcpy(lambdap, distinctLambdas, distinctCuts*sizeof(Npp32f));
+    pmxOut[1] = mxCreateNumericMatrix(1, distinctCuts,  mxINT32_CLASS, mxREAL);
+    Npp32s *lambdap = (Npp32s*)mxGetPr(pmxOut[1]);
+    memcpy(lambdap, distinctLambdas, distinctCuts*sizeof(Npp32s));
 
     // transposeInPlace(outmat, height, width); 
 
